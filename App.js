@@ -2,18 +2,37 @@ import React from "react";
 import { SafeAreaView, Text, StyleSheet } from "react-native";
 import { ClerkProvider, SignedIn, SignedOut } from "@clerk/clerk-expo";
 import SignInWithOAuth from "./components/SignInWithOAuth"; 
-import { useUser } from "@clerk/clerk-expo";
+import * as SecureStore from "expo-secure-store";
+import UseAuthExample from "./components/UseAuthExample";
 
-const CLERK_PUBLISHABLE_KEY = "pk_test_bGlrZWQtZGlub3NhdXItNjMuY2xlcmsuYWNjb3VudHMuZGV2JA";
+const CLERK_PUBLISHABLE_KEY = "pk_test_bGlrZWQtZGlub3NhdXItNjMuY2xlcmsuYWNjb3VudHMuZGV2JA";  
+
+const tokenCache = {
+  async getToken(key: string) {
+    try {
+      return SecureStore.getItemAsync(key);
+    } catch (err) {
+      return null;
+    }
+  },
+  async saveToken(key: string, value: string) {
+    try {
+      return SecureStore.setItemAsync(key, value);
+    } catch (err) {
+      return;
+    }
+  },
+};
+
 export default function App() {
-  const { isLoaded, isSignedIn, user } = useUser();
-
   return (
-    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+    <ClerkProvider 
+      tokenCache={tokenCache}
+      publishableKey={CLERK_PUBLISHABLE_KEY}
+    >
       <SafeAreaView styles={styles.container}>
         <SignedIn>
-          <Text>You are Signed in</Text>
-          <Text>Hello! {user.firstName}</Text>
+          <UseAuthExample />
         </SignedIn>
         <SignedOut>
           <SignInWithOAuth />

@@ -6,6 +6,7 @@ import * as SecureStore from "expo-secure-store";
 import UseAuthExample from "./components/UseAuthExample";
 import HomeScreen from "./components/HomeScreen"; 
 import FilterOptions from "./components/FilterOptions";
+import FilterOptionsHitch from "./components/FilterOptionsHitch";
 import MapScreen from "./components/MapScreen";
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -72,6 +73,16 @@ export default function App() {
                     name="FilterOptions"
                     component={FilterOptions}
                     options={{ title: 'Filter Options' }} // Add options if needed
+                  />
+                  <Stack.Screen
+                    name="FilterOptionsHitch"
+                    component={FilterOptionsHitch}
+                    options={{ title: 'Filter Options For Hitching' }} // Add options if needed
+                  />
+                  <Stack.Screen
+                    name="MapScreen"
+                    component={MapScreen}
+                    options={{ title: 'Select Locations' }} // Add options if needed
                   />
                 </Stack.Navigator>
               </View>

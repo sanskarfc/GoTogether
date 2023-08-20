@@ -70,7 +70,7 @@ const MapScreen = () => {
           <MapViewDirections
             origin={startCoordinates}
             destination={endCoordinates}
-            apikey={apikey}
+            apikey={apiKey}
             strokeWidth={3}
             strokeColor="blue"
             mode="DRIVING"

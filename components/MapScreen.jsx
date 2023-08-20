@@ -3,16 +3,13 @@ import { View, Text, StyleSheet } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
 import * as Location from 'expo-location';
-import Config from './config.json'; 
 
 const MapScreen = () => {
   const [startCoordinates, setStartCoordinates] = useState(null);
   const [endCoordinates, setEndCoordinates] = useState(null);
   const [travelTime, setTravelTime] = useState(null);
   const [initialRegion, setInitialRegion] = useState(null);
-  const apiKey = Config.API_KEY;
-  
-  console.log("config: ", Config);
+  const apiKey = process.env.API_KEY;
 
 
   useEffect(() => {

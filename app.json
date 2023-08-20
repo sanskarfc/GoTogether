@@ -15,7 +15,11 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.example.GoTogether",
+      "config": {
+        "googleMapsApiKey": "AIzaSyD4_2QAmsDZGE4awUVTIM_ryKsiO60Tgq8"
+      }
     },
     "android": {
       "adaptiveIcon": {

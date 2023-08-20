@@ -1,29 +1,26 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'; 
-
-const SignOut = () => {
-  const { isLoaded,signOut } = useAuth();
-  if (!isLoaded) {
-    return null;
-  }
-  return (
-    <Button
-      title="Sign Out"
-      onPress={() => {
-        signOut();
-      }}
-    />
-  );
-};
+import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { useNavigation } from '@react-navigation/native'; 
+import FilterOptions from "./FilterOptions";
 
 const HomeScreen = () => {
+  const navigation = useNavigation();
+
+  const handleCarButtonPress = () => {
+    navigation.navigate('FilterOptions'); // Navigate to FilterOptions screen
+  };
+
+  const handleHitchButtonPress = () => {
+    navigation.navigate('FilterOptions'); // Navigate to FilterOptions screen
+  }; 
+
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Hitch a Ride</Text>
+      <TouchableOpacity style={styles.button} onPress={handleCarButtonPress}>
+        <Text style={styles.buttonText}>I have a Car</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Share a Ride</Text>
+      <TouchableOpacity style={styles.button} onPress={handleHitchButtonPress}>
+        <Text style={styles.buttonText}>I want to Hitch a Ride</Text>
       </TouchableOpacity>
     </View>
   );
@@ -34,19 +31,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f2f2f2',
   },
   button: {
-    backgroundColor: '#3498db',
+    backgroundColor: 'blue',
     padding: 15,
-    width: '70%',
-    borderRadius: 10,
-    marginVertical: 10,
+    borderRadius: 5,
+    marginBottom: 10,
   },
   buttonText: {
     color: 'white',
-    textAlign: 'center',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
   },
 });

@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { RadioButton } from 'react-native-paper';
 import Popover from 'react-native-popover-view';
-import { useNavigation } from '@react-navigation/native';
-import MapScreen from "./MapScreen";
 
 const FilterOptions = () => {
   const [selectedLadies, setSelectedLadies] = useState('1');
@@ -15,8 +13,6 @@ const FilterOptions = () => {
   const ladiesOptions = ['1', '2', '3', '4'];
   const menOptions = ['1', '2', '3', '4'];
 
-  const navigation = useNavigation();
-
   const toggleDetourInfo = () => {
     setShowDetourInfo(!showDetourInfo);
   };
@@ -24,12 +20,6 @@ const FilterOptions = () => {
   const onInfoButtonPress = event => {
     setInfoButtonRef(event.target);
     toggleDetourInfo();
-  };
-
-  const handleSubmit = () => {
-    // Logic to handle the submit action
-    // For example, you can navigate to the MapScreen component
-    navigation.navigate('MapScreen');
   };
 
   return (
@@ -89,9 +79,6 @@ const FilterOptions = () => {
           </Text>
         </Popover>
       </View>
-      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.submitButtonText}>Submit</Text>
-      </TouchableOpacity>
     </View>
   );
 };
@@ -155,19 +142,6 @@ const styles = StyleSheet.create({
   },
   popoverText: {
     fontSize: 14,
-  },
-  submitButton: {
-    backgroundColor: 'blue',
-    padding: 15,
-    borderRadius: 5,
-    marginBottom: 10,
-    alignSelf: 'stretch',
-  },
-  submitButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
   },
 });
 

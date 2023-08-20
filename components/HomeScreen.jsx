@@ -1,8 +1,28 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { Button, View, SafeAreaView, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { useAuth } from "@clerk/clerk-expo";
 import { useNavigation } from '@react-navigation/native'; 
-import FilterOptions from "./FilterOptions";
-import FilterOptionsHitch from "./FilterOptionsHitch";
+
+const SignOut = () => {
+  const { isLoaded, signOut } = useAuth();
+  
+  if (!isLoaded) {
+    return null;
+  }
+  
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.innerContainer}>
+        <Button
+          title="Sign Out"
+          onPress={() => {
+            signOut();
+          }}
+        />
+      </View>
+    </SafeAreaView>
+  );
+}; 
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -23,6 +43,7 @@ const HomeScreen = () => {
       <TouchableOpacity style={styles.button} onPress={handleHitchButtonPress}>
         <Text style={styles.buttonText}>I want to Hitch a Ride</Text>
       </TouchableOpacity>
+      <SignOut />
     </View>
   );
 };

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; 
 import FilterOptions from "./FilterOptions";
+import FilterOptionsHitch from "./FilterOptionsHitch";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -11,7 +12,7 @@ const HomeScreen = () => {
   };
 
   const handleHitchButtonPress = () => {
-    navigation.navigate('FilterOptions'); // Navigate to FilterOptions screen
+    navigation.navigate('FilterOptionsHitch'); // Navigate to FilterOptions screen
   }; 
 
   return (

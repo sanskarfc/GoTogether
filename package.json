@@ -12,7 +12,6 @@
     "@clerk/clerk-expo": "^0.18.17",
     "@react-navigation/native": "^6.1.7",
     "@react-navigation/native-stack": "^6.9.13",
-    "dotenv": "^16.3.1",
     "expo": "~49.0.7",
     "expo-location": "^16.1.0",
     "expo-secure-store": "^12.3.1",

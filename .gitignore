@@ -11,7 +11,7 @@ web-build/
 # API Keys configs
 app.json
 .env
-./components/config.json
+config.json
 
 # Native
 *.orig.*

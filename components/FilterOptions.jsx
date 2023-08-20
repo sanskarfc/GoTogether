@@ -1,18 +1,25 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { RadioButton } from 'react-native-paper';
+import Popover from 'react-native-popover-view';
 
 const FilterOptions = () => {
   const [selectedLadies, setSelectedLadies] = useState('1');
   const [selectedMen, setSelectedMen] = useState('1');
   const [detourMinutes, setDetourMinutes] = useState('');
   const [showDetourInfo, setShowDetourInfo] = useState(false);
+  const [infoButtonRef, setInfoButtonRef] = useState(null);
 
   const ladiesOptions = ['1', '2', '3', '4'];
   const menOptions = ['1', '2', '3', '4'];
 
   const toggleDetourInfo = () => {
     setShowDetourInfo(!showDetourInfo);
+  };
+
+  const onInfoButtonPress = event => {
+    setInfoButtonRef(event.target);
+    toggleDetourInfo();
   };
 
   return (
@@ -56,18 +63,21 @@ const FilterOptions = () => {
             keyboardType="numeric"
             placeholder="Enter minutes"
           />
-          <TouchableOpacity onPress={toggleDetourInfo}>
+          <TouchableOpacity onPress={onInfoButtonPress}>
             <Text style={styles.infoButton}>ℹ️</Text>
           </TouchableOpacity>
         </View>
-        {showDetourInfo && (
-          <View style={styles.infoBubble}>
-            <Text style={styles.infoText}>
-              Enter the number of minutes of detour that is acceptable to you
-              so that you can drop off your fellow rider to their destination.
-            </Text>
-          </View>
-        )}
+        <Popover
+          isVisible={showDetourInfo}
+          fromView={infoButtonRef}
+          onRequestClose={toggleDetourInfo}
+          popoverStyle={styles.popover}
+        >
+          <Text style={styles.popoverText}>
+            Enter the number of minutes of detour that is acceptable to you
+            so that you can drop off your fellow rider to their destination.
+          </Text>
+        </Popover>
       </View>
     </View>
   );
@@ -123,15 +133,14 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginLeft: 10,
   },
-  infoBubble: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+  popover: {
     padding: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderRadius: 10,
-    marginTop: 10,
     borderWidth: 1,
     borderColor: '#ccc',
   },
-  infoText: {
+  popoverText: {
     fontSize: 14,
   },
 });

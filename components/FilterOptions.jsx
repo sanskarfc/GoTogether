@@ -1,19 +1,22 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { RadioButton } from 'react-native-paper';
 import Popover from 'react-native-popover-view';
 import { useNavigation } from '@react-navigation/native';
 import MapScreen from "./MapScreen";
 
 const FilterOptions = () => {
-  const [selectedLadies, setSelectedLadies] = useState('1');
-  const [selectedMen, setSelectedMen] = useState('1');
+  const [age, setAge] = useState('');
+  const [selectedGender, setSelectedGender] = useState('');
+  const [selectedLadies, setSelectedLadies] = useState('none');
+  const [selectedMen, setSelectedMen] = useState('none');
   const [detourMinutes, setDetourMinutes] = useState('');
   const [showDetourInfo, setShowDetourInfo] = useState(false);
   const [infoButtonRef, setInfoButtonRef] = useState(null);
 
-  const ladiesOptions = ['1', '2', '3', '4'];
-  const menOptions = ['1', '2', '3', '4'];
+  const genderOptions = ['Male', 'Female', 'Other']; 
+  const ladiesOptions = ['none', '1', '2', '3', '4'];
+  const menOptions = ['none', '1', '2', '3', '4'];
 
   const navigation = useNavigation();
 
@@ -34,61 +37,92 @@ const FilterOptions = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Filter Options</Text>
-      <View style={styles.filterContainer}>
-        <Text style={styles.filterLabel}>Number of Ladies in the Car:</Text>
-        {ladiesOptions.map(option => (
-          <View key={option} style={styles.radioButtonContainer}>
-            <RadioButton.Android
-              value={option}
-              color="pink"
-              onPress={() => setSelectedLadies(option)}
-              status={selectedLadies === option ? 'checked' : 'unchecked'}
+      <ScrollView>
+        <View style={styles.filterContainer}>
+          <Text style={styles.filterLabel}>Age:</Text>
+          <View style={styles.inputContainer}>
+            <TextInput
+              value={age}
+              style={styles.input}
+              onChangeText={text => setAge(text)}
+              keyboardType="numeric"
+              placeholder="Enter your age"
             />
-            <Text>{option}</Text>
           </View>
-        ))}
-      </View>
-      <View style={styles.filterContainer}>
-        <Text style={styles.filterLabel}>Number of Men in the Car:</Text>
-        {menOptions.map(option => (
+        </View>
+
+        <View style={styles.filterContainer}>
+          <Text style={styles.filterLabel}>Gender:</Text>
+          {genderOptions.map(option => (
           <View key={option} style={styles.radioButtonContainer}>
             <RadioButton.Android
               value={option}
               color="blue"
-              onPress={() => setSelectedMen(option)}
-              status={selectedMen === option ? 'checked' : 'unchecked'}
+              onPress={() => setSelectedGender(option)}
+              status={selectedGender === option ? 'checked' : 'unchecked'}
             />
-            <Text>{option}</Text>
-          </View>
-        ))}
-      </View>
-      <View style={styles.filterContainer}>
-        <Text style={styles.filterLabel}>Number of Minutes of Detour:</Text>
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            value={detourMinutes}
-            onChangeText={text => setDetourMinutes(text)}
-            keyboardType="numeric"
-            placeholder="Enter minutes"
-          />
-          <TouchableOpacity onPress={onInfoButtonPress}>
-            <Text style={styles.infoButton}>ℹ️</Text>
-          </TouchableOpacity>
+              <Text>{option}</Text>
+            </View>
+          ))}
         </View>
-        <Popover
-          isVisible={showDetourInfo}
-          fromView={infoButtonRef}
-          onRequestClose={toggleDetourInfo}
-          popoverStyle={styles.popover}
-        >
-          <Text style={styles.popoverText}>
-            Enter the number of minutes of detour that is acceptable to you
-            so that you can drop off your fellow rider to their destination.
-          </Text>
-        </Popover>
-      </View>
+
+        <View style={styles.filterContainer}>
+          <Text style={styles.filterLabel}>Number of Ladies in the Car:</Text>
+          {ladiesOptions.map(option => (
+            <View key={option} style={styles.radioButtonContainer}>
+              <RadioButton.Android
+                value={option}
+                color="blue"
+                onPress={() => setSelectedLadies(option)}
+                status={selectedLadies === option ? 'checked' : 'unchecked'}
+              />
+              <Text>{option}</Text>
+            </View>
+          ))}
+        </View>
+
+        <View style={styles.filterContainer}>
+          <Text style={styles.filterLabel}>Number of Men in the Car:</Text>
+          {menOptions.map(option => (
+            <View key={option} style={styles.radioButtonContainer}>
+              <RadioButton.Android
+                value={option}
+                color="blue"
+                onPress={() => setSelectedMen(option)}
+                status={selectedMen === option ? 'checked' : 'unchecked'}
+              />
+              <Text>{option}</Text>
+            </View>
+          ))}
+        </View>
+
+        <View style={styles.filterContainer}>
+          <Text style={styles.filterLabel}>Number of Minutes of Detour:</Text>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              value={detourMinutes}
+              onChangeText={text => setDetourMinutes(text)}
+              keyboardType="numeric"
+              placeholder="Enter minutes"
+            />
+            <TouchableOpacity onPress={onInfoButtonPress}>
+              <Text style={styles.infoButton}>ℹ️</Text>
+            </TouchableOpacity>
+          </View>
+          <Popover
+            isVisible={showDetourInfo}
+            fromView={infoButtonRef}
+            onRequestClose={toggleDetourInfo}
+            popoverStyle={styles.popover}
+          >
+            <Text style={styles.popoverText}>
+              Enter the number of minutes of detour that is acceptable to you
+              so that you can drop off your fellow rider to their destination.
+            </Text>
+          </Popover>
+        </View>
+      </ScrollView>
       <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
         <Text style={styles.submitButtonText}>Submit</Text>
       </TouchableOpacity>

@@ -1,9 +1,8 @@
 import React from "react";
-import { View, SafeAreaView, Text, StyleSheet, Button } from "react-native";
-import { ClerkProvider, SignedIn, SignedOut, useAuth } from "@clerk/clerk-expo";
+import { View, SafeAreaView, StyleSheet } from "react-native";
+import { ClerkProvider, SignedIn, SignedOut } from "@clerk/clerk-expo";
 import SignInWithOAuth from "./components/SignInWithOAuth"; 
 import * as SecureStore from "expo-secure-store";
-import UseAuthExample from "./components/UseAuthExample";
 import HomeScreen from "./components/HomeScreen"; 
 import FilterOptions from "./components/FilterOptions";
 import FilterOptionsHitch from "./components/FilterOptionsHitch";
@@ -29,27 +28,6 @@ const tokenCache = {
       return;
     }
   },
-}; 
-
-const SignOut = () => {
-  const { isLoaded, signOut } = useAuth();
-  
-  if (!isLoaded) {
-    return null;
-  }
-  
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.innerContainer}>
-        <Button
-          title="Sign Out"
-          onPress={() => {
-            signOut();
-          }}
-        />
-      </View>
-    </SafeAreaView>
-  );
 }; 
 
 export default function App() {

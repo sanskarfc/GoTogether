@@ -15,8 +15,8 @@ const FilterOptions = () => {
   const [infoButtonRef, setInfoButtonRef] = useState(null);
 
   const genderOptions = ['Male', 'Female', 'Other']; 
-  const ladiesOptions = ['none', '1', '2', '3', '4'];
-  const menOptions = ['none', '1', '2', '3', '4'];
+  const ladiesOptions = ['None', '1', '2', '3', '4'];
+  const menOptions = ['None', '1', '2', '3', '4'];
 
   const navigation = useNavigation();
 

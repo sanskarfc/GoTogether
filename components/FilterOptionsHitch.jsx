@@ -19,7 +19,6 @@ const FilterOptionsHitch = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Filter Options</Text>
       <View style={styles.filterContainer}>
         <Text style={styles.filterLabel}>Should there be at least one lady in the car?</Text>
         {ladyOptions.map(option => (

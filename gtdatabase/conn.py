@@ -32,7 +32,7 @@ class AtomicCursor(CMySQLCursor):
         return self
     
     def __exit__(self):
-        self._cnx_commit()
+        self._cnx.commit()
         
 # Local db class. Implements Database
 class LocalMySql(Database):
@@ -56,10 +56,10 @@ class LocalMySql(Database):
         
     
     def get_session(self):
-        return self.connection.cursor(cursor_class=AutoCommitCursor)
+        return self.connection.cursor()
     
     def get_atomic_session(self):
-        return  self.connection.cursor(cursor_class=AtomicCursor)
+        return  self.connection.cursor()
     
     def close_connection(self):
         self.connection.close()

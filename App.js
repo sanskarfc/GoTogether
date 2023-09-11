@@ -7,6 +7,7 @@ import HomeScreen from "./components/HomeScreen";
 import FilterOptions from "./components/FilterOptions";
 import FilterOptionsHitch from "./components/FilterOptionsHitch";
 import MapScreen from "./components/MapScreen";
+import ChatScreen from "./components/ChatScreen";
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
@@ -62,10 +63,16 @@ export default function App() {
                     component={MapScreen}
                     options={{ title: 'Select Locations' }} // Add options if needed
                   />
+                  <Stack.Screen
+                    name="ChatScreen"
+                    component={ChatScreen}
+                    options={{ title: 'Chat' }} 
+                  />
                 </Stack.Navigator>
               </View>
             </SignedIn>
             <SignedOut>
+              <SignInWithOAuth />
               <SignInWithOAuth />
             </SignedOut>
           </View>

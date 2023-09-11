@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button, View, SafeAreaView, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import ChatScreen from './ChatScreen';
 import { useAuth } from "@clerk/clerk-expo";
 import { useNavigation } from '@react-navigation/native'; 
 
@@ -35,6 +36,10 @@ const HomeScreen = () => {
     navigation.navigate('FilterOptionsHitch'); // Navigate to FilterOptions screen
   }; 
 
+  const handleChatButtonPress = () => {
+    navigation.navigate('ChatScreen'); // Navigate to ChatScreen
+  };
+
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.button} onPress={handleCarButtonPress}>
@@ -42,6 +47,9 @@ const HomeScreen = () => {
       </TouchableOpacity>
       <TouchableOpacity style={styles.button} onPress={handleHitchButtonPress}>
         <Text style={styles.buttonText}>I want to Hitch a Ride</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={handleChatButtonPress}>
+        <Text style={styles.buttonText}>Open Chat</Text>
       </TouchableOpacity>
       <SignOut />
     </View>

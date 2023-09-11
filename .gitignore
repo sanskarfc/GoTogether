@@ -12,6 +12,7 @@ web-build/
 app.json
 .env
 config.json
+./gtdatabase/.env
 
 # Native
 *.orig.*

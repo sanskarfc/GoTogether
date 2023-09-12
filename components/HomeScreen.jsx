@@ -31,10 +31,19 @@ const HomeScreen = () => {
 
   const handleHitchButtonPress = () => {
     navigation.navigate('FilterOptionsHitch'); // Navigate to FilterOptions screen
+  }; 
+
+  const handleUserProfilePress = () => {
+    // Navigate to the user profile screen when the user profile button is pressed
+    navigation.navigate('UserProfilePage');
   };
 
   return (
     <View style={styles.container}>
+      {/* User Profile Button */}
+      <TouchableOpacity style={styles.userProfileButton} onPress={handleUserProfilePress}>
+        <Text style={styles.userProfileIcon} >Profile</Text>
+      </TouchableOpacity>
       <TouchableOpacity style={styles.button} onPress={handleCarButtonPress}>
         <Text style={styles.buttonText}>I have a Car</Text>
       </TouchableOpacity>
@@ -57,7 +66,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 5,
     marginBottom: 20,
-    width: '80%', // Adjust the width as needed
+    width: '80%',
     alignItems: 'center',
   },
   buttonText: {
@@ -69,6 +78,19 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     alignItems: 'center',
     marginBottom: 20,
+  },
+  // User Profile Button Styles
+  userProfileButton: {
+    position: 'absolute',
+    top: 10, // Adjust the top value for positioning
+    right: 10, // Adjust the right value for positioning
+    backgroundColor: '#FFD700',
+    borderRadius: 25,
+    padding: 10,
+  },
+  userProfileIcon: {
+    color: 'black',
+    fontSize: 13,
   },
 });
 

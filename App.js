@@ -7,6 +7,7 @@ import HomeScreen from "./components/HomeScreen";
 import FilterOptions from "./components/FilterOptions";
 import FilterOptionsHitch from "./components/FilterOptionsHitch";
 import MapScreen from "./components/MapScreen";
+import UserProfilePage from "./components/Profile";
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
@@ -61,6 +62,11 @@ export default function App() {
                     name="MapScreen"
                     component={MapScreen}
                     options={{ title: 'Select Locations' }} // Add options if needed
+                  />
+                  <Stack.Screen
+                    name="UserProfilePage"
+                    component={UserProfilePage}
+                    options={{ title: 'Your Profile' }} // Add options if needed
                   />
                 </Stack.Navigator>
               </View>

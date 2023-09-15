@@ -1,9 +1,13 @@
+// TODO:
+// make a time field asking them the time they want a ride 
+
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
 import * as Location from 'expo-location';
 import Config from "./../config.json";
+import axios from 'axios';
 
 const MapScreen = () => {
   const [startCoordinates, setStartCoordinates] = useState(null);
@@ -11,7 +15,11 @@ const MapScreen = () => {
   const [travelTime, setTravelTime] = useState(null);
   const [initialRegion, setInitialRegion] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const apiKey = Config.API_KEY;
+  const apiKey = Config.API_KEY;  
+ 
+  const handleSearch = async () => { 
+    // make a post request to banckend giving them the coordinates and the time  
+  };
 
   useEffect(() => {
     async function getCurrentLocation() {
@@ -58,35 +66,6 @@ const MapScreen = () => {
     }
   };
 
-  const handleSearch = async () => {
-    try {
-      const response = await fetch(
-        `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(searchQuery)}&key=${apiKey}`
-      );
-      const data = await response.json();
-
-      if (data.predictions && data.predictions.length > 0) {
-        // Assuming the first prediction as the selected suggestion
-        const selectedPlaceId = data.predictions[0].place_id;
-        const placeDetailResponse = await fetch(
-          `https://maps.googleapis.com/maps/api/place/details/json?place_id=${selectedPlaceId}&fields=geometry&key=${apiKey}`
-        );
-        const placeDetailData = await placeDetailResponse.json();
-        if (placeDetailData.result && placeDetailData.result.geometry) {
-          const { location } = placeDetailData.result.geometry;
-          if (!startCoordinates) {
-            setStartCoordinates(location);
-          } else if (!endCoordinates) {
-            setEndCoordinates(location);
-            calculateTravelTime(location);
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching search suggestions:', error);
-    }
-  };
-
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
@@ -121,6 +100,9 @@ const MapScreen = () => {
       {travelTime && (
         <Text style={styles.travelTimeText}>Travel Time: {travelTime}</Text>
       )}
+      <TouchableOpacity style={styles.submitButton} onPress={handleSearch}>
+        <Text style={styles.submitButtonText}>Let's Go!</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -163,6 +145,16 @@ const styles = StyleSheet.create({
     padding: 5,
     borderRadius: 5,
     elevation: 3,
+  },
+  submitButton: {
+    backgroundColor: 'blue',
+    padding: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  submitButtonText: {
+    color: 'white',
+    fontSize: 18,
   },
 });
 

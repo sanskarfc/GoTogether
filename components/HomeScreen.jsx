@@ -22,8 +22,9 @@ const SignOut = () => {
   );
 };
 
-const HomeScreen = () => {
-  const navigation = useNavigation();
+const HomeScreen = () => { 
+
+  const navigation = useNavigation(); 
 
   const handleCarButtonPress = () => {
     navigation.navigate('FilterOptions'); // Navigate to FilterOptions screen
@@ -40,15 +41,14 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* User Profile Button */}
       <TouchableOpacity style={styles.userProfileButton} onPress={handleUserProfilePress}>
         <Text style={styles.userProfileIcon} >Profile</Text>
-      </TouchableOpacity>
+      </TouchableOpacity>   
       <TouchableOpacity style={styles.button} onPress={handleCarButtonPress}>
         <Text style={styles.buttonText}>I have a Car</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.button} onPress={handleHitchButtonPress}>
-        <Text style={styles.buttonText}>I want to Hitch a Ride</Text>
+        <Text style={styles.buttonText}>I do not have a Car</Text>
       </TouchableOpacity>
       <SignOut />
     </View>

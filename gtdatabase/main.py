@@ -38,7 +38,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         if self.path == '/api/match': 
-            # in post request, i 
+
 
     # Override log_message method to suppress log messages
     def log_message(self, format, *args):

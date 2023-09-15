@@ -10,8 +10,7 @@ import Config from "./../config.json";
 import axios from 'axios';
 
 const MapScreen = () => {
-  const [startCoordinates, setStartCoordinates] = useState(null);
-  const [endCoordinates, setEndCoordinates] = useState(null);
+
   const [travelTime, setTravelTime] = useState(null);
   const [initialRegion, setInitialRegion] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -40,29 +39,44 @@ const MapScreen = () => {
     }
 
     getCurrentLocation();
-  }, []);
+  }, []); 
+
+  const [startCoordinates, setStartCoordinates] = useState(null);
+  const [endCoordinates, setEndCoordinates] = useState(null);
 
   const handleMapPress = (event) => {
-    const { coordinate } = event.nativeEvent;
+    const { coordinate } = event.nativeEvent; 
+    if(!startCoordinates) {
+      setStartCoordinates((prevCoordinates) => coordinate);
+    } else if(!endCoordinates) {
+      setEndCoordinates((prevCoordinates) => coordinate);
+    } 
+  }; 
 
-    if (!startCoordinates) {
-      setStartCoordinates(coordinate);
-    } else if (!endCoordinates) {
-      setEndCoordinates(coordinate);
-      calculateTravelTime(coordinate);
-    }
-  };
+  const [responseText, setResponseText] = useState(''); // State to store the response
+  const [durations, setDurations] = useState(null);
 
-  const calculateTravelTime = async (destination) => {
-    if (startCoordinates) {
-      const response = await fetch(
-        `https://maps.googleapis.com/maps/api/directions/json?origin=${startCoordinates.latitude},${startCoordinates.longitude}&destination=${destination.latitude},${destination.longitude}&key=${apiKey}`
-      );
-      const data = await response.json();
-      if (data.routes && data.routes.length > 0) {
-        const duration = data.routes[0].legs[0].duration.text;
-        setTravelTime(duration);
-      }
+  const handlePostRequest = async () => {
+    try {
+      const response = await axios.post('https://api.openrouteservice.org/v2/matrix/driving-car', {
+        locations: [[startCoordinates.longitude, startCoordinates.latitude], [endCoordinates.longitude, endCoordinates.latitude]],
+        destinations: [1]
+      }, {
+        headers: {
+          'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+          'Authorization': Config.OPEN_SOURCE_KEY,
+          'Content-Type': 'application/json; charset=utf-8'
+        }
+      });
+
+      // Store the response in the state
+      setResponseText(JSON.stringify(response.data));
+      const responseData = JSON.parse(JSON.stringify(response.data));
+      const durations = (responseData.durations)[0]/60;
+      console.log("Durations: ", durations);
+      setDurations(durations);
+    } catch (error) {
+      console.error("error: ", error.response.data);
     }
   };
 
@@ -86,21 +100,11 @@ const MapScreen = () => {
       >
         {startCoordinates && <Marker coordinate={startCoordinates} pinColor={'green'} />}
         {endCoordinates && <Marker coordinate={endCoordinates} pinColor={'red'} />}
-        {startCoordinates && endCoordinates && (
-          <MapViewDirections
-            origin={startCoordinates}
-            destination={endCoordinates}
-            apikey={apiKey}
-            strokeWidth={3}
-            strokeColor="blue"
-            mode="DRIVING"
-          />
-        )}
       </MapView>
-      {travelTime && (
-        <Text style={styles.travelTimeText}>Travel Time: {travelTime}</Text>
+      {durations && (
+        <Text style={styles.travelTimeText}>Travel Time: {durations} Minutes</Text>
       )}
-      <TouchableOpacity style={styles.submitButton} onPress={handleSearch}>
+      <TouchableOpacity style={styles.submitButton} onPress={handlePostRequest}>
         <Text style={styles.submitButtonText}>Let's Go!</Text>
       </TouchableOpacity>
     </View>
@@ -138,7 +142,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   travelTimeText: {
-    position: 'absolute',
     bottom: 10,
     left: 10,
     backgroundColor: 'white',

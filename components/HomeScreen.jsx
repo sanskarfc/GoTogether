@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, View, SafeAreaView, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { useAuth } from "@clerk/clerk-expo";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native'; 
+import axios from 'axios'; // Import axios
 
 const SignOut = () => {
   const { isLoaded, signOut } = useAuth();

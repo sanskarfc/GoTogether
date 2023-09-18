@@ -77,8 +77,8 @@ CREATE TABLE GroupMembers (
     member_id INT PRIMARY KEY,
     join_time TIMESTAMP NOT NULL,
     user_id INT NOT NULL,
-    group_id INT NOT NULL,
-    KEY user_id_idx (user_id),
+      group_id INT NOT NULL,
+      KEY user_id_idx (user_id),
     KEY group_id_idx (group_id)
 );
 

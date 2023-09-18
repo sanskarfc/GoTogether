@@ -51,22 +51,22 @@ export default function App() {
                   <Stack.Screen
                     name="FilterOptions"
                     component={FilterOptions}
-                    options={{ title: 'Filter Options' }} // Add options if needed
+                    options={{ title: 'Filter Options' }}
                   />
                   <Stack.Screen
                     name="FilterOptionsHitch"
                     component={FilterOptionsHitch}
-                    options={{ title: 'Filter Options For Hitching' }} // Add options if needed
+                    options={{ title: 'Filter Options For Hitching' }} 
                   />
                   <Stack.Screen
                     name="MapScreen"
                     component={MapScreen}
-                    options={{ title: 'Select Locations' }} // Add options if needed
+                    options={{ title: 'Select Locations' }} 
                   />
                   <Stack.Screen
                     name="UserProfilePage"
                     component={UserProfilePage}
-                    options={{ title: 'Your Profile' }} // Add options if needed
+                    options={{ title: 'Your Profile' }} 
                   />
                 </Stack.Navigator>
               </View>

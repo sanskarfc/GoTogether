@@ -18,6 +18,12 @@ const MapScreen = () => {
  
   const handleSearch = async () => { 
     // make a post request to banckend giving them the coordinates and the time  
+    
+  }; 
+
+  const handleButtonPress = () => {
+    // Define the data you want to send in the request body
+
   };
 
   useEffect(() => {
@@ -74,7 +80,30 @@ const MapScreen = () => {
       const responseData = JSON.parse(JSON.stringify(response.data));
       const durations = (responseData.durations)[0]/60;
       console.log("Durations: ", durations);
-      setDurations(durations);
+      setDurations(durations); 
+
+      const data = {
+        start_latitude: startCoordinates.latitude,
+        start_longitude: startCoordinates.longitude,
+        end_latitude: endCoordinates.latitude,
+        end_longitude: endCoordinates.longitude,
+      };
+
+      // Make the POST request
+      fetch('http://localhost:8000', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
     } catch (error) {
       console.error("error: ", error.response.data);
     }

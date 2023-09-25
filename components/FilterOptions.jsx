@@ -18,7 +18,7 @@ class SliderOption extends React.Component {
                     value={this.state.value}
                     onValueChange={value => this.setState({value})}
                     minimumValue={0}
-                    maximumValue={5}
+                    maximumValue={30}
                     step={1}
                     trackClickable={true}
                 /> 
@@ -30,15 +30,6 @@ class SliderOption extends React.Component {
 
 const FilterOptions = () => {
   const navigation = useNavigation();
-
-  const toggleDetourInfo = () => {
-    setShowDetourInfo(!showDetourInfo);
-  };
-
-  const onInfoButtonPress = event => {
-    setInfoButtonRef(event.target);
-    toggleDetourInfo();
-  };
 
   const handleSubmit = () => {
     navigation.navigate('MapScreen');
@@ -55,6 +46,11 @@ const FilterOptions = () => {
 
         <View style={styles.filterContainer}>
           <Text style={styles.filterLabel}>Number of Men in the Car:</Text>
+          <SliderOption/>
+        </View> 
+
+        <View style={styles.filterContainer}>
+          <Text style={styles.filterLabel}>Number of Minutes of Detour Acceptable to You?</Text>
           <SliderOption/>
         </View>
 

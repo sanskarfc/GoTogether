@@ -20,8 +20,6 @@ BwIDAQAB
 -----END PUBLIC KEY-----
 """ 
 
-
-
 connection = MySQLdb.connect(
     host=os.getenv("DATABASE_HOST"),
     user=os.getenv("DATABASE_USERNAME"),
@@ -31,25 +29,66 @@ connection = MySQLdb.connect(
 )
 
 # Define the handler class for handling HTTP requests
-class RequestHandler(BaseHTTPRequestHandler): 
+class RequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        if self.path == '/api/count':
+        if self.path == '/api/profile':
             try:
-                cursor = connection.cursor()
-                cursor.execute("SHOW TABLES")
-                tables = cursor.fetchall()
-                table_count = len(tables)
+                print("inside the get request")
+                auth_header = self.headers.get('Authorization')
+                if not auth_header:
+                    print("no authorization header!")
+                    self.send_response(401)
+                    self.end_headers()
+                    self.wfile.write(b'Authorization header is missing')
+                    return
 
-                self.send_response(200)
-                self.send_header("Content-type", "text/plain")
+                token = auth_header.split()[1]
+                decoded_token = jwt.decode(token, public_key, algorithms=['RS256'])
+                user_id = decoded_token.get('sub')
+
+                cursor = connection.cursor()
+                cursor.execute("SELECT * from Users where user_id='" + user_id + "'")
+                user_data = cursor.fetchone()
+
+                # Check if user_data is not None (i.e., user found)
+                if user_data:
+                    # Convert the user_data to a dictionary
+                    user_dict = {
+                        'name': user_data[1],
+                        'gender': user_data[3],
+                        'age': user_data[4],
+                        'rating': user_data[5],
+                    }
+
+                    # Convert the dictionary to JSON
+                    json_response = json.dumps(user_dict)
+
+                    # Send the JSON response in the GET request
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json_response.encode('utf-8'))
+                else:
+                    # If no user is found, you can return an appropriate message or handle it as needed
+                    self.send_response(404)  # Not Found
+                    self.end_headers()
+                    self.wfile.write(b'User not found')
+
+            except jwt.ExpiredSignatureError:
+                self.send_response(401)
                 self.end_headers()
-                self.wfile.write(f"Total tables in the database: {table_count}".encode())
+                self.wfile.write(b'Token has expired')
+
+            except jwt.InvalidTokenError:
+                print("jwt invalid token error!!!")
+                self.send_response(401)
+                self.end_headers()
+                self.wfile.write(b'Invalid token')
 
             except Exception as e:
                 self.send_response(500)
-                self.send_header("Content-type", "text/plain")
                 self.end_headers()
-                self.wfile.write(f"Error: {str(e)}".encode()) 
+                self.wfile.write(f'An error occurred: {str(e)}'.encode('utf-8')) 
 
     def do_POST(self):
         if self.path == '/api/profile': 
@@ -58,8 +97,6 @@ class RequestHandler(BaseHTTPRequestHandler):
                 post_data = self.rfile.read(content_length) 
                 post_json = post_data.decode('utf8').replace("'", '"')
                 data = json.loads(post_json) 
-
-                print("name: ", data["name"])
 
                 auth_header = self.headers.get('Authorization')
                 if not auth_header:
@@ -72,10 +109,8 @@ class RequestHandler(BaseHTTPRequestHandler):
                 decoded_token = jwt.decode(token, public_key, algorithms=['RS256'])
                 user_id = decoded_token.get('sub')  
 
-                print("user id : ", user_id)  
-
-                # cursor = connection.cursor()
-                # cursor.execute("UPDATE Users SET name = '"+data["name"]+"', gender = '"+data["gender"]+"', age = '"+data["age"]+"' WHERE user_id = '"+user_id+"';");
+                cursor = connection.cursor()
+                cursor.execute("UPDATE Users SET  name = '"+data["name"]+"', gender = '"+data["gender"]+"', age = '"+data["age"]+"' WHERE user_id = '"+user_id+"';");
 
                 self.send_response(200)
                 self.end_headers()
@@ -94,10 +129,56 @@ class RequestHandler(BaseHTTPRequestHandler):
             except Exception as e:
                 self.send_response(500)
                 self.end_headers()
-                self.wfile.write(f'An error occurred: {str(e)}'.encode('utf-8'))
+                self.wfile.write(f'An error occurred: {str(e)}'.encode('utf-8')) 
+        
+        if self.path == '/api/user':  
+            try: 
+                content_length = int(self.headers['Content-Length'])
+                post_data = self.rfile.read(content_length) 
+                post_json = post_data.decode('utf8').replace("'", '"')
+                data = json.loads(post_json) 
+
+                auth_header = self.headers.get('Authorization')
+                if not auth_header:
+                    self.send_response(401)
+                    self.end_headers()
+                    self.wfile.write(b'Authorization header is missing')
+                    return 
+
+                token = auth_header.split()[1]
+                decoded_token = jwt.decode(token, public_key, algorithms=['RS256'])
+                user_id = decoded_token.get('sub')  
+
+                cursor = connection.cursor(); 
+                cursor.execute("INSERT into Users SET user_id='"+user_id+"', name='"+data["name"]+"', gender=NULL, age=NULL, profile_pic='"+data["profilePic"]+"', ratings=5;")
+
+                # printing to check
+                print(data["name"]);
+                print(data["profilePic"]) 
+                
+
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write(b'Profile updated successfully') 
+
+            except jwt.ExpiredSignatureError:
+                self.send_response(401)
+                self.end_headers()
+                self.wfile.write(b'Token has expired')
+
+            except jwt.InvalidTokenError:
+                self.send_response(401)
+                self.end_headers()
+                self.wfile.write(b'Invalid token')
+
+            except Exception as e:
+                self.send_response(500)
+                self.end_headers()
+                self.wfile.write(f'An error occurred: {str(e)}'.encode('utf-8')) 
+
 
 # Create an HTTP server and specify the port
-server = HTTPServer(('10.7.48.43', 8080), RequestHandler)
+server = HTTPServer(('10.7.47.190', 8080), RequestHandler)
 
 try:
     print("Server listening on port 8080...")

@@ -8,6 +8,7 @@ import MapViewDirections from 'react-native-maps-directions';
 import * as Location from 'expo-location';
 import Config from "./../config.json";
 import axios from 'axios';
+import { useAuth } from "@clerk/clerk-expo";
 
 const MapScreen = () => {
 
@@ -60,7 +61,41 @@ const MapScreen = () => {
   }; 
 
   const [responseText, setResponseText] = useState(''); // State to store the response
-  const [durations, setDurations] = useState(null);
+  const [durations, setDurations] = useState(null); 
+
+  async function handleLetsGo() {
+    const token = await session.getToken();
+
+    const userData = {
+      startLatitude: startCoordinates.latitude,
+      startLongitude: startCoordinates.longtude,
+      endLatitude: endCoordinates.latitude,
+      endLongitude: endCoordinates.longitude,
+    };
+
+    fetch("http://10.7.48.43:8080/api/profile", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+        mode: "cors",
+      },
+      body: JSON.stringify(userData),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+      })
+      .then((data) => {
+        console.log("Profile updated successfully:", data);
+      })
+      .catch((error) => {
+        console.error("Error updating profile:", error);
+      }); 
+
+    setCanedit(!canedit);
+  };
 
   const handlePostRequest = async () => {
     try {
@@ -134,6 +169,9 @@ const MapScreen = () => {
         <Text style={styles.travelTimeText}>Travel Time: {durations} Minutes</Text>
       )}
       <TouchableOpacity style={styles.submitButton} onPress={handlePostRequest}>
+        <Text style={styles.submitButtonText}>Show me Approx Time!</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.submitButton} onPress={handleLetsGo}>
         <Text style={styles.submitButtonText}>Let's Go!</Text>
       </TouchableOpacity>
     </View>
@@ -183,6 +221,7 @@ const styles = StyleSheet.create({
     padding: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
   },
   submitButtonText: {
     color: 'white',

@@ -4,23 +4,24 @@ use gtdatabase;
 
 Drop table if exists Users;
 CREATE TABLE Users (
-    user_id INT PRIMARY KEY,
+    user_id VARCHAR(255) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     profile_pic VARCHAR(255),
     gender VARCHAR(10),
     age INT,
-    ratings DECIMAL(3, 2) CHECK (ratings >= 0 AND ratings <= 5)
+    ratings INT CHECK (ratings >= 0 AND ratings <= 5) 
 );
 
 drop table if exists Trip;
 CREATE TABLE Trip (
     trip_id INT PRIMARY KEY,
-    start_altitude DECIMAL(10, 2) NOT NULL,
-    end_altitude DECIMAL(10, 2) NOT NULL,
-    start_latitude DECIMAL(10, 6) NOT NULL,
-    end_latitude DECIMAL(10, 6) NOT NULL,
+    start_latitude DECIMAL(10, 2) NOT NULL,
+    end_latitude DECIMAL(10, 2) NOT NULL,
+    start_longitude DECIMAL(10, 6) NOT NULL,
+    end_longitude DECIMAL(10, 6) NOT NULL,
     start_time TIMESTAMP NOT NULL,
     number_of_seats INT NOT NULL,
+    number_of_females INT NOT NULL,
     rideby INT NOT NULL,
     KEY rideby_idx (rideby)
 );

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import moment from 'moment';
 import { Button, View, SafeAreaView, StyleSheet, TouchableOpacity, Text } from 'react-native';
-import { useAuth } from "@clerk/clerk-expo";
+import { useAuth, useSession, useUser } from "@clerk/clerk-expo";
 import { useNavigation } from '@react-navigation/native'; 
 import axios from 'axios'; // Import axios
 
@@ -21,24 +22,73 @@ const SignOut = () => {
       />
     </SafeAreaView>
   );
-};
+}; 
 
-const HomeScreen = () => { 
-
+const HomeScreen = () => {  
   const navigation = useNavigation(); 
+  const { isLoaded, session, isSignedIn } = useSession();
+  const { user } = useUser();
 
   const handleCarButtonPress = () => {
-    navigation.navigate('FilterOptions'); // Navigate to FilterOptions screen
+    navigation.navigate('FilterOptions'); 
   };
 
   const handleHitchButtonPress = () => {
-    navigation.navigate('FilterOptionsHitch'); // Navigate to FilterOptions screen
-  }; 
+    navigation.navigate('FilterOptionsHitch'); 
+  };
 
   const handleUserProfilePress = () => {
-    // Navigate to the user profile screen when the user profile button is pressed
-    navigation.navigate('UserProfilePage');
-  };
+    navigation.navigate('UserProfilePage');  
+
+    const userCreatedAt = moment(user.createdAt.toString(), 'ddd MMM DD YYYY HH:mm:ss GMTZ').utc();
+    const now = moment();
+    const secondsDifference = now.diff(userCreatedAt, 'seconds'); 
+
+    return secondsDifference;
+  }; 
+
+  function getTimeDiff() {
+    const userCreatedAt = moment(user.createdAt.toString(), 'ddd MMM DD YYYY HH:mm:ss GMTZ').utc();
+    const now = moment();
+    const secondsDifference = now.diff(userCreatedAt, 'seconds'); 
+
+    return secondsDifference;
+  }
+
+  useEffect(() => {
+    async function registerUser() {
+      const token = await session.getToken();
+      if(getTimeDiff() < 30) {
+        userData = { 
+          name: user.fullName,
+          profilePic: user.profileImageUrl,
+        }
+
+        fetch("http://10.7.48.43:8080/api/user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+            mode: "cors",
+          },
+          body: JSON.stringify(userData),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+          })
+          .then((data) => {
+            console.log("User Registered Successfully:", data);
+          })
+          .catch((error) => {
+            console.error("Error Registering User:", error);
+          }); 
+      }
+    }
+
+    registerUser();
+  }, []);
 
   return (
     <View style={styles.container}>

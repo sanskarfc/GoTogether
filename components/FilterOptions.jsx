@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { RadioButton } from 'react-native-paper';
 import Popover from 'react-native-popover-view';
@@ -30,36 +31,52 @@ class SliderOption extends React.Component {
 
 const FilterOptions = () => {
   const navigation = useNavigation();
+  const [date, setDate] = useState(new Date()); // Initialize date state
 
-  const handleSubmit = () => {
+  const handleSubmit = () => { 
+    // Send the details 
     navigation.navigate('MapScreen');
-  }; 
+  };
 
   return (
-    <View style={styles.container}> 
-
+    <View style={styles.container}>
       <ScrollView>
-        <View style={styles.filterContainer}> 
+        <View style={styles.filterContainer}>
           <Text style={styles.filterLabel}>Number of Ladies in the Car:</Text>
-          <SliderOption/>
+          <SliderOption />
         </View>
 
         <View style={styles.filterContainer}>
           <Text style={styles.filterLabel}>Number of Men in the Car:</Text>
-          <SliderOption/>
-        </View> 
-
-        <View style={styles.filterContainer}>
-          <Text style={styles.filterLabel}>Number of Minutes of Detour Acceptable to You?</Text>
-          <SliderOption/>
+          <SliderOption />
         </View>
 
+        <View style={styles.filterContainer}>
+          <Text style={styles.filterLabel}>
+            Number of Minutes of Detour Acceptable to You?
+          </Text>
+          <SliderOption />
+        </View>
+
+        <View style={styles.filterContainer}>
+          <Text style={styles.filterLabel}>Select a Date and Time:</Text>
+          <DateTimePicker
+            value={date}
+            mode="datetime"
+            display="default"
+            onChange={(event, selectedDate) => {
+              // Handle the selected date here
+              if (selectedDate) {
+                setDate(selectedDate);
+              }
+            }}
+          />
+        </View>
       </ScrollView>
 
       <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
         <Text style={styles.submitButtonText}>Submit</Text>
-      </TouchableOpacity> 
-
+      </TouchableOpacity>
     </View>
   );
 };

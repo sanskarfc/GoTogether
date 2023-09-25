@@ -5,7 +5,7 @@ import { View, Text, Image, TextInput, Button, StyleSheet } from 'react-native';
 
 const UserProfilePage = () => {
   const [name, setName] = useState("");
-  const [profilePicture, setProfilePicture] = useState("https://example.com/profile.jpg");
+  const [profilePicture, setProfilePicture] = useState("https://en.wikipedia.org/wiki/File:IIT_Gandhinagar_Logo.svg");
   const [gender, setGender] = useState("");
   const [age, setAge] = useState("");
   const [rating, setRating] = useState("");
@@ -39,6 +39,7 @@ const UserProfilePage = () => {
           setGender(data.gender);
           setAge(data.age.toString());
           setRating(data.rating.toString());
+          setProfilePicture(data.profilePic);
         })
         .catch((error) => {
           console.error("User Profile Fetch Error: ", error);

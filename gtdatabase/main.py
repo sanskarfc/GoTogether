@@ -33,7 +33,6 @@ class RequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == '/api/profile':
             try:
-                print("inside the get request")
                 auth_header = self.headers.get('Authorization')
                 if not auth_header:
                     print("no authorization header!")
@@ -49,6 +48,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 cursor = connection.cursor()
                 cursor.execute("SELECT * from Users where user_id='" + user_id + "'")
                 user_data = cursor.fetchone()
+                print(user_data)
 
                 # Check if user_data is not None (i.e., user found)
                 if user_data:
@@ -58,6 +58,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                         'gender': user_data[3],
                         'age': user_data[4],
                         'rating': user_data[5],
+                        'profilePic': user_data[2],
                     }
 
                     # Convert the dictionary to JSON

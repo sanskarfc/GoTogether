@@ -4,6 +4,7 @@ import { Button, View, SafeAreaView, StyleSheet, TouchableOpacity, Text } from '
 import { useAuth, useSession, useUser } from "@clerk/clerk-expo";
 import { useNavigation } from '@react-navigation/native'; 
 import axios from 'axios'; // Import axios
+import { useRoute } from '@react-navigation/native';
 
 const SignOut = () => {
   const { isLoaded, signOut } = useAuth();
@@ -28,13 +29,20 @@ const HomeScreen = () => {
   const navigation = useNavigation(); 
   const { isLoaded, session, isSignedIn } = useSession();
   const { user } = useUser();
+  const [poolType, setPoolType] = useState("cab");
 
   const handleCarButtonPress = () => {
-    navigation.navigate('FilterOptions'); 
+    setPoolType("car");
+    navigation.navigate('FilterOptions', {
+      poolType: poolType,
+    }); 
   };
 
   const handleHitchButtonPress = () => {
-    navigation.navigate('FilterOptionsHitch'); 
+    setPoolType("cab");
+    navigation.navigate('FilterOptionsHitch', {
+      poolType: poolType,
+    }); 
   };
 
   const handleUserProfilePress = () => {

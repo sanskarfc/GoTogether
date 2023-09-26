@@ -1,77 +1,114 @@
 import React, { useState } from 'react';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
-import { RadioButton } from 'react-native-paper';
 import Popover from 'react-native-popover-view';
 import { useNavigation } from '@react-navigation/native';
 import MapScreen from "./MapScreen"; 
 import {Slider} from '@miblanchard/react-native-slider'; 
+import { useRoute } from '@react-navigation/native';
 
-class SliderOption extends React.Component {
-    state = {
-      value: 0,
-    };
-
-    render() {
-        return (
-            <View style={styles_slider.container}>
-                <Slider
-                    value={this.state.value}
-                    onValueChange={value => this.setState({value})}
-                    minimumValue={0}
-                    maximumValue={30}
-                    step={1}
-                    trackClickable={true}
-                /> 
-                <Text>Value: {this.state.value}</Text>
-            </View>
-        );
-    }
-}
 
 const FilterOptions = () => {
   const navigation = useNavigation();
-  const [date, setDate] = useState(new Date()); // Initialize date state
+  const [ladiesValue, setLadiesValue] = useState(0);
+  const [menValue, setMenValue] = useState(0);
+  const [detourValue, setDetourValue] = useState(0); 
+  const [date, setDate] = useState(new Date());  
+  const [freeSeats, setFreeSeats] = useState(0);
+
+  const route = useRoute();
+  const { poolType } = route.params;
 
   const handleSubmit = () => { 
-    // Send the details 
-    navigation.navigate('MapScreen');
+    navigation.navigate('MapScreen', {
+      date: date.toString(),
+      ladiesValue: ladiesValue,
+      menValue: menValue,
+      detourValue: detourValue,
+      poolType: poolType,
+    });
   };
 
   return (
     <View style={styles.container}>
       <ScrollView>
-        <View style={styles.filterContainer}>
-          <Text style={styles.filterLabel}>Number of Ladies in the Car:</Text>
-          <SliderOption />
+
+        <View style={styles.filterContainer}> 
+          <Text style={styles.filterLabel}>Number of free seats in your car?</Text>
+            <View style={styles_slider.container}>
+                <Slider
+                    value={freeSeats}
+                    onValueChange={value => setFreeSeats(value)}
+                    minimumValue={0}
+                    maximumValue={10}
+                    step={1}
+                    trackClickable={true}
+                /> 
+                <Text>Value: {freeSeats}</Text>
+            </View>
         </View>
 
         <View style={styles.filterContainer}>
-          <Text style={styles.filterLabel}>Number of Men in the Car:</Text>
-          <SliderOption />
+          <Text style={styles.filterLabel}>Number of Ladies in the Car</Text>
+            <View style={styles_slider.container}>
+                <Slider
+                    value={ladiesValue}
+                    onValueChange={value => setLadiesValue(value)}
+                    minimumValue={0}
+                    maximumValue={30}
+                    step={1}
+                    trackClickable={true}
+                /> 
+                <Text>Value: {ladiesValue}</Text>
+            </View>
+        </View>
+
+        <View style={styles.filterContainer}>
+          <Text style={styles.filterLabel}>Number of Men in the Car</Text>
+            <View style={styles_slider.container}>
+                <Slider
+                    value={menValue}
+                    onValueChange={value => setMenValue(value)}
+                    minimumValue={0}
+                    maximumValue={30}
+                    step={1}
+                    trackClickable={true}
+                /> 
+                <Text>Value: {menValue}</Text>
+            </View>
         </View>
 
         <View style={styles.filterContainer}>
           <Text style={styles.filterLabel}>
             Number of Minutes of Detour Acceptable to You?
           </Text>
-          <SliderOption />
+            <View style={styles_slider.container}>
+                <Slider
+                    value={detourValue}
+                    onValueChange={value => setDetourValue(value)}
+                    minimumValue={0}
+                    maximumValue={30}
+                    step={1}
+                    trackClickable={true}
+                /> 
+                <Text>Value: {detourValue}</Text>
+            </View>
         </View>
 
         <View style={styles.filterContainer}>
-          <Text style={styles.filterLabel}>Select a Date and Time:</Text>
+          <Text style={styles.filterLabel}>Select a Date and Time</Text>
           <DateTimePicker
             value={date}
             mode="datetime"
             display="default"
             onChange={(event, selectedDate) => {
-              // Handle the selected date here
               if (selectedDate) {
                 setDate(selectedDate);
               }
             }}
           />
-        </View>
+        </View> 
+
       </ScrollView>
 
       <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>

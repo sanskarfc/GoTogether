@@ -2,6 +2,7 @@
 // make a time field asking them the time they want a ride 
 
 import React, { useState, useEffect } from 'react';
+import { useRoute } from '@react-navigation/native';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
@@ -11,19 +12,48 @@ import axios from 'axios';
 import { useAuth } from "@clerk/clerk-expo";
 
 const MapScreen = () => {
+  const route = useRoute();
+  const { ladiesValue, menValue, detourValue, date } = route.params; 
 
   const [travelTime, setTravelTime] = useState(null);
   const [initialRegion, setInitialRegion] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const apiKey = Config.API_KEY;  
- 
+  const apiKey = Config.API_KEY;   
+
   const handleSearch = async () => { 
-    // make a post request to banckend giving them the coordinates and the time  
-    
+    const token = await session.getToken();
+
+    const userData = {
+      ladiesValue: ladiesValue,
+      menValue: menValue,
+      date: date,
+      travelTime: travelTime,
+      detourValue: detourValue
+    };
+
+    fetch("http://10.7.47.190:8080/api/trip", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+        mode: "cors",
+      },
+      body: JSON.stringify(userData),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+      })
+      .then((data) => {
+        console.log("Trip data sent to backend successfully:", data);
+      })
+      .catch((error) => {
+        console.error("Error in sending trip data sent to backend:", error);
+      }); 
   }; 
 
   const handleButtonPress = () => {
-    // Define the data you want to send in the request body
 
   };
 

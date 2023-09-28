@@ -171,7 +171,6 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         if self.path == '/api/trip':  
             try: 
-                print("adding detail to trip!")
                 content_length = int(self.headers['Content-Length'])
                 post_data = self.rfile.read(content_length) 
                 post_json = post_data.decode('utf8').replace("'", '"')
@@ -196,12 +195,21 @@ class RequestHandler(BaseHTTPRequestHandler):
                 end_latitude = data["endCoordinates"]["latitude"]
                 end_longitude = data["endCoordinates"]["longitude"]
 
-                input_date_str = (data["date"]).replace("GMT", "")  # Remove "GMT" from the string
+                input_date_str = (data["date"]).replace("GMT", "")  
                 input_date = datetime.datetime.strptime(input_date_str, "%a %b %d %Y %H:%M:%S %z")
                 timestamp_str = input_date.strftime('%Y-%m-%d %H:%M:%S')
 
-                cursor = connection.cursor(); 
-                cursor.execute("INSERT into Trip SET trip_id='"+uuid_str+"', start_longitude="+str(start_longitude)+", start_latitude="+str(start_latitude)+", end_latitude="+str(end_latitude)+", end_longitude="+str(end_longitude)+", number_of_seats=" + str(data["freeSeats"][0]) + ", number_of_females=" + str(data["ladiesValue"][0]) + ", rideby='"+user_id+"', start_time='"+timestamp_str+"';")
+                cursor = connection.cursor();  
+
+                cursor.execute("SELECT COUNT(*) FROM Trip WHERE rideby = '"+user_id+"';")
+                user_data = cursor.fetchone()
+
+                # Only adding trip details to database if there are no previous ongoing trips!
+                if(user_data[0] == 0):
+                    cursor.execute("INSERT into Trip SET trip_id='"+uuid_str+"', start_longitude="+str(start_longitude)+", start_latitude="+str(start_latitude)+", end_latitude="+str(end_latitude)+", end_longitude="+str(end_longitude)+", number_of_seats=" + str(data["freeSeats"][0]) + ", number_of_females=" + str(data["ladiesValue"][0]) + ", rideby='"+user_id+"', start_time='"+timestamp_str+"';")
+                    print("Added Trip to Database")
+                else: 
+                    print("A trip already exists for this user! Not adding this one.")
 
                 self.send_response(200)
                 self.end_headers()

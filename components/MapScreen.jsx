@@ -1,6 +1,3 @@
-// TODO:
-// make a time field asking them the time they want a ride 
-
 import React, { useState, useEffect } from 'react';
 import { useRoute } from '@react-navigation/native';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
@@ -26,8 +23,7 @@ const MapScreen = () => {
   const [endCoordinates, setEndCoordinates] = useState(null); 
 
   async function handleLetsGo() {
-    const token = await session.getToken(); 
-
+    const token = await session.getToken();  
 
     const userData = {
       ladiesValue: ladiesValue,
@@ -53,7 +49,6 @@ const MapScreen = () => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        return response.json();
       })
       .then((data) => {
         console.log("Trip data sent to backend successfully:", data);
@@ -61,7 +56,7 @@ const MapScreen = () => {
       .catch((error) => {
         console.error("Error in sending trip data sent to backend:", error);
         return error;
-      }); 
+      });   
   }
 
   useEffect(() => {

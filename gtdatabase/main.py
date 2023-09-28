@@ -1,4 +1,6 @@
 from dotenv import load_dotenv
+import datetime
+import uuid
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import os
 import json
@@ -26,7 +28,7 @@ connection = MySQLdb.connect(
     passwd=os.getenv("DATABASE_PASSWORD"),
     db=os.getenv("DATABASE"),
     autocommit=True,
-)
+) 
 
 # Define the handler class for handling HTTP requests
 class RequestHandler(BaseHTTPRequestHandler):
@@ -39,20 +41,18 @@ class RequestHandler(BaseHTTPRequestHandler):
                     self.send_response(401)
                     self.end_headers()
                     self.wfile.write(b'Authorization header is missing')
-                    return
+                    return 
 
                 token = auth_header.split()[1]
                 decoded_token = jwt.decode(token, public_key, algorithms=['RS256'])
-                user_id = decoded_token.get('sub')
+                user_id = decoded_token.get('sub') 
 
                 cursor = connection.cursor()
                 cursor.execute("SELECT * from Users where user_id='" + user_id + "'")
                 user_data = cursor.fetchone()
                 print(user_data)
 
-                # Check if user_data is not None (i.e., user found)
                 if user_data:
-                    # Convert the user_data to a dictionary
                     user_dict = {
                         'name': user_data[1],
                         'gender': user_data[3],
@@ -61,16 +61,13 @@ class RequestHandler(BaseHTTPRequestHandler):
                         'profilePic': user_data[2],
                     }
 
-                    # Convert the dictionary to JSON
                     json_response = json.dumps(user_dict)
 
-                    # Send the JSON response in the GET request
                     self.send_response(200)
                     self.send_header('Content-Type', 'application/json')
                     self.end_headers()
                     self.wfile.write(json_response.encode('utf-8'))
                 else:
-                    # If no user is found, you can return an appropriate message or handle it as needed
                     self.send_response(404)  # Not Found
                     self.end_headers()
                     self.wfile.write(b'User not found')
@@ -153,14 +150,62 @@ class RequestHandler(BaseHTTPRequestHandler):
                 cursor = connection.cursor(); 
                 cursor.execute("INSERT into Users SET user_id='"+user_id+"', name='"+data["name"]+"', gender=NULL, age=NULL, profile_pic='"+data["profilePic"]+"', ratings=5;")
 
-                # printing to check
-                print(data["name"]);
-                print(data["profilePic"]) 
-                
-
                 self.send_response(200)
                 self.end_headers()
                 self.wfile.write(b'Profile updated successfully') 
+
+            except jwt.ExpiredSignatureError:
+                self.send_response(401)
+                self.end_headers()
+                self.wfile.write(b'Token has expired')
+
+            except jwt.InvalidTokenError:
+                self.send_response(401)
+                self.end_headers()
+                self.wfile.write(b'Invalid token')
+
+            except Exception as e:
+                self.send_response(500)
+                self.end_headers()
+                self.wfile.write(f'An error occurred: {str(e)}'.encode('utf-8')) 
+
+        if self.path == '/api/trip':  
+            try: 
+                print("adding detail to trip!")
+                content_length = int(self.headers['Content-Length'])
+                post_data = self.rfile.read(content_length) 
+                post_json = post_data.decode('utf8').replace("'", '"')
+                data = json.loads(post_json)
+
+                auth_header = self.headers.get('Authorization')
+                if not auth_header:
+                    self.send_response(401)
+                    self.end_headers()
+                    self.wfile.write(b'Authorization header is missing')
+                    return  
+
+                token = auth_header.split()[1]
+                decoded_token = jwt.decode(token, public_key, algorithms=['RS256'])
+                user_id = decoded_token.get('sub')    
+
+                new_uuid = uuid.uuid4()
+                uuid_str = str(new_uuid)
+                
+                start_latitude = data["startCoordinates"]["latitude"]
+                start_longitude = data["startCoordinates"]["longitude"]
+                end_latitude = data["endCoordinates"]["latitude"]
+                end_longitude = data["endCoordinates"]["longitude"]
+
+                input_date_str = (data["date"]).replace("GMT", "")  # Remove "GMT" from the string
+                input_date = datetime.datetime.strptime(input_date_str, "%a %b %d %Y %H:%M:%S %z")
+                timestamp_str = input_date.strftime('%Y-%m-%d %H:%M:%S')
+
+                cursor = connection.cursor(); 
+                cursor.execute("INSERT into Trip SET trip_id='"+uuid_str+"', start_longitude="+str(start_longitude)+", start_latitude="+str(start_latitude)+", end_latitude="+str(end_latitude)+", end_longitude="+str(end_longitude)+", number_of_seats=" + str(data["freeSeats"][0]) + ", number_of_females=" + str(data["ladiesValue"][0]) + ", rideby='"+user_id+"', start_time='"+timestamp_str+"';")
+
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write(b'Trip Added Successfully') 
 
             except jwt.ExpiredSignatureError:
                 self.send_response(401)

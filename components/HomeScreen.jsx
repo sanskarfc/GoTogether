@@ -47,12 +47,6 @@ const HomeScreen = () => {
 
   const handleUserProfilePress = () => {
     navigation.navigate('UserProfilePage');  
-
-    const userCreatedAt = moment(user.createdAt.toString(), 'ddd MMM DD YYYY HH:mm:ss GMTZ').utc();
-    const now = moment();
-    const secondsDifference = now.diff(userCreatedAt, 'seconds'); 
-
-    return secondsDifference;
   }; 
 
   function getTimeDiff() {
@@ -65,38 +59,39 @@ const HomeScreen = () => {
 
   useEffect(() => {
     async function registerUser() {
-      const token = await session.getToken();
       if(getTimeDiff() < 30) {
-        userData = { 
+        const token = await session.getToken();
+
+        userdata = {
           name: user.fullName,
           profilePic: user.profileImageUrl,
         }
 
-        fetch("http://10.7.48.43:8080/api/user", {
-          method: "POST",
+        fetch("http://10.7.47.190:8080/api/user", {
+          method: "post",
           headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
+            "content-type": "application/json",
+            "authorization": `bearer ${token}`,
             mode: "cors",
           },
-          body: JSON.stringify(userData),
+          body: JSON.stringify(userdata),
         })
           .then((response) => {
             if (!response.ok) {
-              throw new Error("Network response was not ok");
+              throw new error("network response was not ok");
             }
           })
           .then((data) => {
-            console.log("User Registered Successfully:", data);
+            console.log("user registered successfully:", data);
           })
           .catch((error) => {
-            console.error("Error Registering User:", error);
+            console.error("error registering user:", error);
           }); 
       }
     }
 
     registerUser();
-  }, []);
+  }, []);  
 
   return (
     <View style={styles.container}>

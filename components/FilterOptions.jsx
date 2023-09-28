@@ -26,6 +26,7 @@ const FilterOptions = () => {
       menValue: menValue,
       detourValue: detourValue,
       poolType: poolType,
+      freeSeats: freeSeats, 
     });
   };
 

@@ -9,26 +9,35 @@ import MapViewDirections from 'react-native-maps-directions';
 import * as Location from 'expo-location';
 import Config from "./../config.json";
 import axios from 'axios';
-import { useAuth } from "@clerk/clerk-expo";
+import { useAuth, useSession, useUser } from "@clerk/clerk-expo";
 
 const MapScreen = () => {
   const route = useRoute();
-  const { ladiesValue, menValue, detourValue, date } = route.params; 
+  const { ladiesValue, menValue, detourValue, date, freeSeats } = route.params; 
+  const { sessionId, getToken } = useAuth();
+  const { session } = useSession(); 
 
   const [travelTime, setTravelTime] = useState(null);
   const [initialRegion, setInitialRegion] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const apiKey = Config.API_KEY;   
+  const apiKey = Config.API_KEY;    
 
-  const handleSearch = async () => { 
-    const token = await session.getToken();
+  const [startCoordinates, setStartCoordinates] = useState(null);
+  const [endCoordinates, setEndCoordinates] = useState(null); 
+
+  async function handleLetsGo() {
+    const token = await session.getToken(); 
+
 
     const userData = {
       ladiesValue: ladiesValue,
       menValue: menValue,
       date: date,
       travelTime: travelTime,
-      detourValue: detourValue
+      detourValue: detourValue,
+      startCoordinates: startCoordinates,
+      endCoordinates: endCoordinates,
+      freeSeats: freeSeats,
     };
 
     fetch("http://10.7.47.190:8080/api/trip", {
@@ -44,18 +53,16 @@ const MapScreen = () => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
+        return response.json();
       })
       .then((data) => {
         console.log("Trip data sent to backend successfully:", data);
       })
       .catch((error) => {
         console.error("Error in sending trip data sent to backend:", error);
+        return error;
       }); 
-  }; 
-
-  const handleButtonPress = () => {
-
-  };
+  }
 
   useEffect(() => {
     async function getCurrentLocation() {
@@ -78,54 +85,21 @@ const MapScreen = () => {
     getCurrentLocation();
   }, []); 
 
-  const [startCoordinates, setStartCoordinates] = useState(null);
-  const [endCoordinates, setEndCoordinates] = useState(null);
-
   const handleMapPress = (event) => {
     const { coordinate } = event.nativeEvent; 
     if(!startCoordinates) {
       setStartCoordinates((prevCoordinates) => coordinate);
     } else if(!endCoordinates) {
       setEndCoordinates((prevCoordinates) => coordinate);
-    } 
-  }; 
+    }
+  };
 
   const [responseText, setResponseText] = useState(''); // State to store the response
-  const [durations, setDurations] = useState(null); 
+  const [durations, setDurations] = useState(null);  
 
-  async function handleLetsGo() {
-    const token = await session.getToken();
+  const handleSearch = async () => {
 
-    const userData = {
-      startLatitude: startCoordinates.latitude,
-      startLongitude: startCoordinates.longtude,
-      endLatitude: endCoordinates.latitude,
-      endLongitude: endCoordinates.longitude,
-    };
-
-    fetch("http://10.7.48.43:8080/api/profile", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-        mode: "cors",
-      },
-      body: JSON.stringify(userData),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-      })
-      .then((data) => {
-        console.log("Profile updated successfully:", data);
-      })
-      .catch((error) => {
-        console.error("Error updating profile:", error);
-      }); 
-
-    setCanedit(!canedit);
-  };
+  }
 
   const handlePostRequest = async () => {
     try {
@@ -146,29 +120,6 @@ const MapScreen = () => {
       const durations = (responseData.durations)[0]/60;
       console.log("Durations: ", durations);
       setDurations(durations); 
-
-      const data = {
-        start_latitude: startCoordinates.latitude,
-        start_longitude: startCoordinates.longitude,
-        end_latitude: endCoordinates.latitude,
-        end_longitude: endCoordinates.longitude,
-      };
-
-      // Make the POST request
-      fetch('http://localhost:8000', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log(data);
-        })
-        .catch((error) => {
-          console.error('Error:', error);
-        });
     } catch (error) {
       console.error("error: ", error.response.data);
     }

@@ -14,15 +14,15 @@ CREATE TABLE Users (
 
 drop table if exists Trip;
 CREATE TABLE Trip (
-    trip_id INT PRIMARY KEY,
-    start_latitude DECIMAL(10, 2) NOT NULL,
-    end_latitude DECIMAL(10, 2) NOT NULL,
-    start_longitude DECIMAL(10, 6) NOT NULL,
-    end_longitude DECIMAL(10, 6) NOT NULL,
-    start_time TIMESTAMP NOT NULL,
+    trip_id VARCHAR(255) PRIMARY KEY,
+    start_latitude DECIMAL(18, 15) NOT NULL,
+    end_latitude DECIMAL(18, 15) NOT NULL,
+    start_longitude DECIMAL(18, 15) NOT NULL,
+    end_longitude DECIMAL(18, 15) NOT NULL,
+    start_time TIMESTAMP,
     number_of_seats INT NOT NULL,
     number_of_females INT NOT NULL,
-    rideby INT NOT NULL,
+    rideby VARCHAR(255) NOT NULL, -- user_id who requested this
     KEY rideby_idx (rideby)
 );
 
@@ -34,8 +34,6 @@ CREATE TABLE TripUserMatch (
     KEY trip_id_idx (trip_id),
     KEY user_id_idx (user_id)
 );
-
-
 
 drop table if exists PersonalChat;
 CREATE TABLE PersonalChat (

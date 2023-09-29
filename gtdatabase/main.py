@@ -63,6 +63,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
                     json_response = json.dumps(user_dict)
 
+
                     self.send_response(200)
                     self.send_header('Content-Type', 'application/json')
                     self.end_headers()
@@ -87,6 +88,69 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.send_response(500)
                 self.end_headers()
                 self.wfile.write(f'An error occurred: {str(e)}'.encode('utf-8')) 
+
+        if self.path == '/api/match':
+            try:
+                auth_header = self.headers.get('Authorization')
+                if not auth_header:
+                    print("no authorization header!")
+                    self.send_response(401)
+                    self.end_headers()
+                    self.wfile.write(b'Authorization header is missing')
+                    return 
+
+                token = auth_header.split()[1]
+                decoded_token = jwt.decode(token, public_key, algorithms=['RS256'])
+                user_id = decoded_token.get('sub') 
+
+                cursor = connection.cursor()
+                cursor.execute("SELECT name from Users where user_id='"+user_id+"';")
+                user_name = str((cursor.fetchone())[0])
+                cursor.execute("SELECT * FROM Trip;")
+                user_data = cursor.fetchall() 
+
+                print("user_data --> ", user_data)
+
+                response_data = {}
+                for trip in user_data: 
+                    trip_id = trip[0]
+                    cursor.execute("SELECT * FROM Users where user_id='"+trip[8]+"';")
+                    rider_details = cursor.fetchone()
+                    rider_name = rider_details[1];
+                    response_data[trip_id] = {
+                        'Start Latitude': float(trip[1]),
+                        'End Latitude': float(trip[2]),
+                        'Start Longitude': float(trip[3]),
+                        'End Longitude': float(trip[4]),
+                        'Ride Start Time': str(trip[5]),
+                        'Rider': str(rider_name),
+                    }
+
+
+                print(response_data)
+                json_response = json.dumps(response_data)
+
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json_response.encode('utf-8'))
+
+            except jwt.ExpiredSignatureError:
+                self.send_response(401)
+                self.end_headers()
+                self.wfile.write(b'Token has expired')
+
+            except jwt.InvalidTokenError:
+                print("jwt invalid token error!!!")
+                self.send_response(401)
+                self.end_headers()
+                self.wfile.write(b'Invalid token')
+
+            except Exception as e:
+                self.send_response(500)
+                self.end_headers()
+                self.wfile.write(f'An error occurred: {str(e)}'.encode('utf-8')) 
+
 
     def do_POST(self):
         if self.path == '/api/profile': 

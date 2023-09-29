@@ -5,6 +5,7 @@ import MapView, { Marker } from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
 import * as Location from 'expo-location';
 import Config from "./../config.json";
+import { useNavigation } from '@react-navigation/native'; 
 import axios from 'axios';
 import { useAuth, useSession, useUser } from "@clerk/clerk-expo";
 
@@ -13,6 +14,8 @@ const MapScreen = () => {
   const { ladiesValue, menValue, detourValue, date, freeSeats } = route.params; 
   const { sessionId, getToken } = useAuth();
   const { session } = useSession(); 
+  const navigation = useNavigation(); 
+
 
   const [travelTime, setTravelTime] = useState(null);
   const [initialRegion, setInitialRegion] = useState(null);
@@ -118,7 +121,11 @@ const MapScreen = () => {
     } catch (error) {
       console.error("error: ", error.response.data);
     }
-  };
+  }; 
+
+  const handleMatch = async () => {
+    navigation.navigate('MatchScreen');
+  }
 
   return (
     <View style={styles.container}>
@@ -149,6 +156,9 @@ const MapScreen = () => {
       </TouchableOpacity>
       <TouchableOpacity style={styles.submitButton} onPress={handleLetsGo}>
         <Text style={styles.submitButtonText}>Let's Go!</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.submitButton} onPress={handleMatch}>
+        <Text style={styles.submitButtonText}>Get Matches!</Text>
       </TouchableOpacity>
     </View>
   );

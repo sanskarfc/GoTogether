@@ -7,6 +7,7 @@ import HomeScreen from "./components/HomeScreen";
 import FilterOptions from "./components/FilterOptions";
 import FilterOptionsHitch from "./components/FilterOptionsHitch";
 import MapScreen from "./components/MapScreen";
+import MatchScreen from "./components/MatchScreen";
 import UserProfilePage from "./components/Profile";
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -67,6 +68,11 @@ export default function App() {
                     name="UserProfilePage"
                     component={UserProfilePage}
                     options={{ title: 'Your Profile' }} 
+                  />
+                  <Stack.Screen
+                    name="MatchScreen"
+                    component={MatchScreen}
+                    options={{ title: 'Your Matches' }} 
                   />
                 </Stack.Navigator>
               </View>

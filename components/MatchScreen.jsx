@@ -56,12 +56,9 @@ const MatchScreen = () => {
               return (
                 <Card key={tripId} style={styles.card}>
                   <Card.Content>
-                    <Text style={styles.cardText}>Start Latitude: {tripData['Start Latitude']}</Text>
-                    <Text style={styles.cardText}>Start Longitude: {tripData['Start Longitude']}</Text>
-                    <Text style={styles.cardText}>End Latitude: {tripData['End Latitude']}</Text>
-                    <Text style={styles.cardText}>End Longitude: {tripData['End Longitude']}</Text>
                     <Text style={styles.cardText}>Ride Start Time: {tripData['Ride Start Time']}</Text>
-                    <Text style={styles.cardText}>Rider: {tripData['Rider']}</Text>
+                    <Text style={styles.cardText}>Rider: {tripData['Rider']}</Text> 
+                    <Text style={styles.cardText}>Detour Minutes: {tripData['Your Detour']} Minutes</Text> 
                     <MapView
                       style={styles.map}
                       initialRegion={{

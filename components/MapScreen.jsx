@@ -124,6 +124,26 @@ const MapScreen = () => {
   }; 
 
   const handleMatch = async () => {
+    const token = await session.getToken();  
+    fetch("http://10.7.47.190:8080/api/match", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+        mode: "cors",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+      })
+      .then((data) => {
+        console.log("Received data from server: ", data);
+      })
+      .catch((error) => {
+        console.error("User Profile Fetch Error: ", error);
+      }); 
     navigation.navigate('MatchScreen');
   }
 

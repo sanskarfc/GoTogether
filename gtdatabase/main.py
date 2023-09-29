@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+import requests
 import math
 import datetime
 import uuid
@@ -21,8 +22,7 @@ zesOpmkrjyJeXYCwg52CJn/+p8rSgryo0+tmDn1BL+0bbqIaWvCb4HyEaEozV+EU
 v7oWFug/fvKjXQsyHE7T5CXoDphYwOT3UNLxvkr1T7YznJwHloUti9grlBcmeUTr
 BwIDAQAB
 -----END PUBLIC KEY-----
-""" 
-
+"""   
 connection = MySQLdb.connect(
     host=os.getenv("DATABASE_HOST"),
     user=os.getenv("DATABASE_USERNAME"),
@@ -130,7 +130,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 user1_startLat = float(current_user_trip_details[1])
                 user1_startLon = float(current_user_trip_details[3])
                 user1_endLat = float(current_user_trip_details[2])
-                user1_endLon = float(current_user_trip_details[4]) 
+                user1_endLon = float(current_user_trip_details[4])  
 
                 response_data = {}
                 for trip in user_data: 
@@ -141,9 +141,98 @@ class RequestHandler(BaseHTTPRequestHandler):
 
                     distance = calculate_distance(
                         user1_startLat, user1_startLon, float(trip[1]), float(trip[3])
-                    ) 
+                    )  
 
-                    print(f"Distance between coordinates: {distance} kilometers")
+                    ##################### SENDING POST REQUEST FOR TIMES #######################
+                    url = 'https://api.openrouteservice.org/v2/matrix/driving-car'  
+
+                    ALat = user1_startLat
+                    ALon = user1_startLon
+                    BLat = user1_endLat
+                    BLon = user1_endLon
+
+                    CLat = float(trip[1])
+                    CLon = float(trip[3])
+                    DLat = float(trip[2])
+                    DLon = float(trip[4]) 
+
+                    timeAB=0 
+                    timeAD=0
+                    timeDB=0
+ 
+                    ################# A --> B ##################
+                    locationData = {
+                        'locations': [[ALon, ALat], [BLon, BLat]],
+                        'destinations': [1]
+                    }
+                    headers = {
+                        'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+                        'Authorization': os.getenv("OPEN_SOURCE_KEY"),
+                        'Content-Type': 'application/json; charset=utf-8'
+                    } 
+
+                    response = requests.post(url, data=json.dumps(locationData), headers=headers) 
+
+                    if response.status_code == 200:
+                        jsonDataResponse = json.loads(response.text)
+                        timeAB = (jsonDataResponse.get('durations'))[0][0]
+                    else:
+                        print('POST request failed with status code:', response.status_code)  
+
+                    #################   END    ###################  
+
+
+                    ################# A --> D ##################  
+                    locationData = {
+                        'locations': [[ALon, ALat], [DLon, DLat]],
+                        'destinations': [1]
+                    }
+                    headers = {
+                        'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+                        'Authorization': os.getenv("OPEN_SOURCE_KEY"),
+                        'Content-Type': 'application/json; charset=utf-8'
+                    } 
+
+                    response = requests.post(url, data=json.dumps(locationData), headers=headers) 
+
+                    if response.status_code == 200:
+                        jsonDataResponse = json.loads(response.text)
+                        timeAD = (jsonDataResponse.get('durations'))[0][0]
+                    else:
+                        print('POST request failed with status code:', response.status_code)  
+
+                    #####################   END   ###################   
+
+
+                    ################# D --> B ##################  
+                    locationData = {
+                        'locations': [[DLon, DLat], [BLon, BLat]],
+                        'destinations': [1]
+                    }
+                    headers = {
+                        'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+                        'Authorization': os.getenv("OPEN_SOURCE_KEY"),
+                        'Content-Type': 'application/json; charset=utf-8'
+                    } 
+
+                    response = requests.post(url, data=json.dumps(locationData), headers=headers) 
+
+                    if response.status_code == 200:
+                        jsonDataResponse = json.loads(response.text)
+                        timeDB = (jsonDataResponse.get('durations'))[0][0]
+                    else:
+                        print('POST request failed with status code:', response.status_code)  
+                    #################    END   ######################    
+
+                    print("timeAB --> ", timeAB)
+                    print("timeAD --> ", timeAD)
+                    print("timeDB --> ", timeDB)
+
+                    ########################################################################## 
+
+                    formattedDetour = "{:.1f}".format(float(timeAD + timeDB - timeAB)/60)
+                    print("abcd --> ", formattedDetour)
+
                     if(distance < 5 and str(trip[8]) != user_id): 
                         response_data[trip_id] = {
                             'Start Latitude': float(trip[1]),
@@ -152,10 +241,13 @@ class RequestHandler(BaseHTTPRequestHandler):
                             'End Longitude': float(trip[4]),
                             'Ride Start Time': str(trip[5]),
                             'Rider': str(rider_name),
+                            'Your Detour': formattedDetour
                         }
 
                 print(response_data)
-                json_response = json.dumps(response_data)
+                json_response = json.dumps(response_data) 
+
+
 
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')

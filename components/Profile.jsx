@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ActivityIndicator, Colors } from 'react-native-paper';
 import { useAuth, useSession, useUser } from "@clerk/clerk-expo";
 import { ClerkProvider, useSignIn } from "@clerk/clerk-expo";
 import { View, Text, Image, TextInput, Button, StyleSheet } from 'react-native';
@@ -13,6 +14,8 @@ const UserProfilePage = () => {
 
   const { sessionId, getToken } = useAuth();
   const { session } = useSession(); 
+
+  const [dataFetched, setDataFetched] = useState(false);
 
 
   useEffect(() => {
@@ -40,6 +43,9 @@ const UserProfilePage = () => {
           setAge(data.age.toString());
           setRating(data.rating.toString());
           setProfilePicture(data.profilePic);
+          setTimeout(() => {
+            setDataFetched(true);
+          }, 1000);
         })
         .catch((error) => {
           console.error("User Profile Fetch Error: ", error);
@@ -111,37 +117,43 @@ const UserProfilePage = () => {
 
   return (
     <View style={styles.container}>
-      <Image source={{ uri: profilePicture }} style={styles.profilePicture} />
-      <Text style={styles.label}>Name:</Text>
-      <TextInput
-        style={styles.input}
-        value={name}
-        onChangeText={setName}
-        editable={canedit} 
-      />
-      <Text style={styles.label}>Gender:</Text>
-      <TextInput
-        style={styles.input}
-        value={gender}
-        onChangeText={setGender}
-        editable={canedit} 
-      />
-      <Text style={styles.label}>Age:</Text>
-      <TextInput
-        style={styles.input}
-        value={age}
-        onChangeText={setAge}
-        editable={canedit} 
-      /> 
-      <Text style={styles.label}>Rating:</Text>
-      <TextInput
-        style={styles.input}
-        value={rating}
-        onChangeText={setRating}
-        editable={false}
-      /> 
-      {!canedit && <Button title="Edit" onPress={handleEdit} />}
-      {canedit && <Button title="Save Details" onPress={handleSave} />}
+      {dataFetched && 
+        <View>
+          <Image source={{ uri: profilePicture }} style={styles.profilePicture} />
+          <Text style={styles.label}> Name:</Text>
+          <TextInput
+            style={styles.input}
+            value={name}
+            onChangeText={setName}
+            editable={canedit} 
+          />
+          <Text style={styles.label}>Gender:</Text>
+          <TextInput
+            style={styles.input}
+            value={gender}
+            onChangeText={setGender}
+            editable={canedit} 
+          />
+          <Text style={styles.label}>Age:</Text>
+          <TextInput
+            style={styles.input}
+            value={age}
+            onChangeText={setAge}
+            editable={canedit} 
+          /> 
+          <Text style={styles.label}>Rating:</Text>
+          <TextInput
+            style={styles.input}
+            value={rating}
+            onChangeText={setRating}
+            editable={false}
+          /> 
+          {!canedit && <Button title="Edit" onPress={handleEdit} />}
+          {canedit && <Bjjjjjjjjjjjjjjjutton title="Save Details" onPress={handleSave} />}
+        </View>
+      }
+      {!dataFetched && <ActivityIndicator animating={true} />}
+
     </View>
   );
 };

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ActivityIndicator, Colors } from 'react-native-paper';
 import { useAuth, useSession } from "@clerk/clerk-expo";
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Card, Button } from 'react-native-paper';
@@ -105,7 +106,7 @@ const MatchScreen = () => {
           )}
         </ScrollView>
       )}
-      {!showComponent && <Text style={styles.noMatchesText}>Loading ...</Text>}
+      {!showComponent && <ActivityIndicator animating={true} />}
     </View>
   );
 };

@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+import math
 import datetime
 import uuid
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -28,7 +29,22 @@ connection = MySQLdb.connect(
     passwd=os.getenv("DATABASE_PASSWORD"),
     db=os.getenv("DATABASE"),
     autocommit=True,
-) 
+)  
+
+def calculate_distance(lat1, lon1, lat2, lon2):
+    R = 6371  # Radius of the Earth in kilometers
+    d_lat = math.radians(lat2 - lat1)
+    d_lon = math.radians(lon2 - lon1)
+
+    a = (
+        math.sin(d_lat / 2) ** 2
+        + math.cos(math.radians(lat1))
+        * math.cos(math.radians(lat2))
+        * math.sin(d_lon / 2) ** 2
+    )
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    distance = R * c  # Distance in kilometers
+    return distance
 
 # Define the handler class for handling HTTP requests
 class RequestHandler(BaseHTTPRequestHandler):
@@ -109,23 +125,34 @@ class RequestHandler(BaseHTTPRequestHandler):
                 cursor.execute("SELECT * FROM Trip;")
                 user_data = cursor.fetchall() 
 
-                print("user_data --> ", user_data)
+                cursor.execute("SELECT * from Trip where rideby='"+user_id+"'")
+                current_user_trip_details = cursor.fetchone()
+                user1_startLat = float(current_user_trip_details[1])
+                user1_startLon = float(current_user_trip_details[3])
+                user1_endLat = float(current_user_trip_details[2])
+                user1_endLon = float(current_user_trip_details[4]) 
 
                 response_data = {}
                 for trip in user_data: 
                     trip_id = trip[0]
                     cursor.execute("SELECT * FROM Users where user_id='"+trip[8]+"';")
                     rider_details = cursor.fetchone()
-                    rider_name = rider_details[1];
-                    response_data[trip_id] = {
-                        'Start Latitude': float(trip[1]),
-                        'End Latitude': float(trip[2]),
-                        'Start Longitude': float(trip[3]),
-                        'End Longitude': float(trip[4]),
-                        'Ride Start Time': str(trip[5]),
-                        'Rider': str(rider_name),
-                    }
+                    rider_name = rider_details[1]; 
 
+                    distance = calculate_distance(
+                        user1_startLat, user1_startLon, float(trip[1]), float(trip[3])
+                    ) 
+
+                    print(f"Distance between coordinates: {distance} kilometers")
+                    if(distance < 5 and str(trip[8]) != user_id): 
+                        response_data[trip_id] = {
+                            'Start Latitude': float(trip[1]),
+                            'End Latitude': float(trip[2]),
+                            'Start Longitude': float(trip[3]),
+                            'End Longitude': float(trip[4]),
+                            'Ride Start Time': str(trip[5]),
+                            'Rider': str(rider_name),
+                        }
 
                 print(response_data)
                 json_response = json.dumps(response_data)

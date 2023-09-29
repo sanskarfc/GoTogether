@@ -76,6 +76,7 @@ const MatchScreen = () => {
                           longitude: parseFloat(tripData['Start Longitude']),
                         }}
                         title="Start Location"
+                        pinColor={'green'}
                       />
                       <Marker
                         coordinate={{

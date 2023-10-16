@@ -38,8 +38,8 @@ const MapScreen = () => {
       endCoordinates: endCoordinates,
       freeSeats: freeSeats,
     };
-
-    fetch("http://10.7.47.190:8080/api/trip", {
+    const ipv4_address = Config.IPV4_ADDRESS;
+    fetch(`http://${ipv4_address}:8080/api/trip`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -125,7 +125,8 @@ const MapScreen = () => {
 
   const handleMatch = async () => {
     const token = await session.getToken();  
-    fetch("http://10.7.47.190:8080/api/match", {
+    const ipv4_address = Config.IPV4_ADDRESS;
+    fetch(`http://${ipv4_address}:8080/api/match`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

@@ -5,6 +5,7 @@ import { useAuth, useSession, useUser } from "@clerk/clerk-expo";
 import { useNavigation } from '@react-navigation/native'; 
 import axios from 'axios'; // Import axios
 import { useRoute } from '@react-navigation/native';
+import Config from "./../config.json";
 
 const SignOut = () => {
   const { isLoaded, signOut } = useAuth();
@@ -66,8 +67,8 @@ const HomeScreen = () => {
           name: user.fullName,
           profilePic: user.profileImageUrl,
         }
-
-        fetch("http://10.7.47.190:8080/api/user", {
+        const ipv4_address = Config.IPV4_ADDRESS;
+        fetch(`http://${ipv4_address}:8080/api/user`, {
           method: "post",
           headers: {
             "content-type": "application/json",

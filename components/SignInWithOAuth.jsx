@@ -26,28 +26,14 @@ const SignInWithOAuth = () => {
   }, []);
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Button
-        title="Sign in with Google"
-        onPress={onPress}
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+
+    <Button
+      title="Sign in with Google"
+      onPress={onPress}
       />
+      
     </View>
   );
 }
 export default SignInWithOAuth;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

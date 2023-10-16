@@ -3,6 +3,7 @@ import { ActivityIndicator, Colors } from 'react-native-paper';
 import { useAuth, useSession, useUser } from "@clerk/clerk-expo";
 import { ClerkProvider, useSignIn } from "@clerk/clerk-expo";
 import { View, Text, Image, TextInput, Button, StyleSheet } from 'react-native';
+import Config from "./../config.json";
 
 const UserProfilePage = () => {
   const [name, setName] = useState("");
@@ -21,8 +22,8 @@ const UserProfilePage = () => {
   useEffect(() => {
     async function GetUserData() {
       const token = await session.getToken();
-
-      fetch("http://10.7.47.190:8080/api/profile", {
+      const ipv4_address = Config.IPV4_ADDRESS;
+      fetch(`http://${ipv4_address}:8080/api/profile`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -61,8 +62,8 @@ const UserProfilePage = () => {
 
   async function handleEdit() { 
     const token = await session.getToken();
-
-    fetch("http://10.7.47.190:8080/api/profile", {
+    const ipv4_address = Config.IPV4_ADDRESS;
+    fetch(`http://${ipv4_address}:8080/api/profile`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -94,8 +95,8 @@ const UserProfilePage = () => {
       age: age,
       gender: gender
     };
-
-    fetch("http://10.7.47.190:8080/api/profile", {
+    const ipv4_address = Config.IPV4_ADDRESS;
+    fetch(`http://${ipv4_address}:8080/api/profile`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

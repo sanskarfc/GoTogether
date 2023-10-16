@@ -12,6 +12,9 @@ CREATE TABLE Users (
     ratings INT CHECK (ratings >= 0 AND ratings <= 5) 
 );
 
+-- TODO: 
+-- 1. Add type in trip (ENUM car or cab) 
+
 drop table if exists Trip;
 CREATE TABLE Trip (
     trip_id VARCHAR(255) PRIMARY KEY,
@@ -22,7 +25,7 @@ CREATE TABLE Trip (
     start_time TIMESTAMP,
     number_of_seats INT NOT NULL,
     number_of_females INT NOT NULL,
-    rideby VARCHAR(255) NOT NULL, -- user_id who requested this
+    rideby VARCHAR(255) NOT NULL,
     KEY rideby_idx (rideby)
 );
 

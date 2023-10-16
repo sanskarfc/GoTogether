@@ -65,7 +65,8 @@ class RequestHandler(BaseHTTPRequestHandler):
 
                 cursor = connection.cursor()
                 cursor.execute("SELECT * from Users where user_id='" + user_id + "'")
-                user_data = cursor.fetchone()
+                user_data = cursor.fetchone() 
+
                 print(user_data)
 
                 if user_data:
@@ -328,10 +329,13 @@ class RequestHandler(BaseHTTPRequestHandler):
 
                 token = auth_header.split()[1]
                 decoded_token = jwt.decode(token, public_key, algorithms=['RS256'])
-                user_id = decoded_token.get('sub')  
+                user_id = decoded_token.get('sub')   
 
                 cursor = connection.cursor(); 
-                cursor.execute("INSERT into Users SET user_id='"+user_id+"', name='"+data["name"]+"', gender=NULL, age=NULL, profile_pic='"+data["profilePic"]+"', ratings=5;")
+                cursor.execute(
+                    "INSERT INTO Users (user_id, name, gender, age, profile_pic, ratings) VALUES (%s, %s, %s, %s, %s, %s);",
+                    (str(user_id), str(data["name"]), None, None, str(data["profilePic"]), str(5))
+                )
 
                 self.send_response(200)
                 self.end_headers()
@@ -386,10 +390,13 @@ class RequestHandler(BaseHTTPRequestHandler):
 
                 cursor.execute("SELECT COUNT(*) FROM Trip WHERE rideby = '"+user_id+"';")
                 user_data = cursor.fetchone()
-
-                # Only adding trip details to database if there are no previous ongoing trips!
+    
+                print("user_data --> ", user_data)
                 if(user_data[0] == 0):
-                    cursor.execute("INSERT into Trip SET trip_id='"+uuid_str+"', start_longitude="+str(start_longitude)+", start_latitude="+str(start_latitude)+", end_latitude="+str(end_latitude)+", end_longitude="+str(end_longitude)+", number_of_seats=" + str(data["freeSeats"][0]) + ", number_of_females=" + str(data["ladiesValue"][0]) + ", rideby='"+user_id+"', start_time='"+timestamp_str+"';")
+                    cursor.execute(
+                        "INSERT INTO Trip (trip_id, start_longitude, start_latitude, end_latitude, end_longitude, number_of_seats, number_of_females, rideby, start_time) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);",
+                        (str(uuid_str), str(start_longitude), str(start_latitude), str(end_latitude), str(end_longitude), str(data["freeSeats"][0]), str(data["ladiesValue"][0]), str(user_id), str(timestamp_str))
+                    )
                     print("Added Trip to Database")
                 else: 
                     print("A trip already exists for this user! Not adding this one.")

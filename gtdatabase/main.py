@@ -125,6 +125,8 @@ class RequestHandler(BaseHTTPRequestHandler):
                     return
 
                 token = auth_header.split()[1]
+
+                options = {"verify_exp": False, "verify_aud": False}
                 decoded_token = jwt.decode(
                     token, public_key, algorithms=["RS256"], options=options
                 )
@@ -135,6 +137,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                     "SELECT name from Users where user_id='" + user_id + "';"
                 )
                 user_name = str((cursor.fetchone())[0])
+                print("user name --> ", user_name)
                 cursor.execute("SELECT * FROM Trip;")
                 user_data = cursor.fetchall()
 
@@ -423,6 +426,8 @@ class RequestHandler(BaseHTTPRequestHandler):
                     return
 
                 token = auth_header.split()[1]
+                options = {"verify_exp": False, "verify_aud": False}
+
                 decoded_token = jwt.decode(
                     token, public_key, algorithms=["RS256"], options=options
                 )

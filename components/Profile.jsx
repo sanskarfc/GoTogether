@@ -39,8 +39,12 @@ const UserProfilePage = () => {
         .then((data) => {
           console.log("Received data from server: ", data);
           setName(data.name);
-          setGender(data.gender);
-          setAge(data.age.toString());
+          if(data.gender !== null) {
+            setGender(data.gender);
+          }
+          if(data.age !== null) {
+            setAge(data.age.toString());
+          }
           setRating(data.rating.toString());
           setProfilePicture(data.profilePic);
           setTimeout(() => {
@@ -149,7 +153,7 @@ const UserProfilePage = () => {
             editable={false}
           /> 
           {!canedit && <Button title="Edit" onPress={handleEdit} />}
-          {canedit && <Bjjjjjjjjjjjjjjjutton title="Save Details" onPress={handleSave} />}
+          {canedit && <Button title="Save Details" onPress={handleSave} />}
         </View>
       }
       {!dataFetched && <ActivityIndicator animating={true} />}

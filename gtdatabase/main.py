@@ -122,11 +122,12 @@ class RequestHandler(BaseHTTPRequestHandler):
 
                 cursor = connection.cursor()
                 cursor.execute("SELECT name from Users where user_id='"+user_id+"';")
-                user_name = str((cursor.fetchone())[0])
+                user_name = (cursor.fetchone())[0]
                 cursor.execute("SELECT * FROM Trip;")
                 user_data = cursor.fetchall() 
 
                 cursor.execute("SELECT * from Trip where rideby='"+user_id+"'")
+
                 current_user_trip_details = cursor.fetchone()
                 user1_startLat = float(current_user_trip_details[1])
                 user1_startLon = float(current_user_trip_details[3])
@@ -232,7 +233,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                     ########################################################################## 
 
                     formattedDetour = "{:.1f}".format(float(timeAD + timeDB - timeAB)/60)
-                    print("abcd --> ", formattedDetour)
+                    print("formattedDetour --> ", formattedDetour)
 
                     if(distance < 5 and str(trip[8]) != user_id): 
                         response_data[trip_id] = {

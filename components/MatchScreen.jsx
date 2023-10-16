@@ -4,6 +4,7 @@ import { useAuth, useSession } from "@clerk/clerk-expo";
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Card, Button } from 'react-native-paper';
 import MapView, { Marker, Polygon } from 'react-native-maps';
+import Config from "./../config.json";
 
 const MatchScreen = () => {
   const { session } = useSession();
@@ -13,7 +14,8 @@ const MatchScreen = () => {
   useEffect(() => {
     async function GetMatches() {
       const token = await session.getToken();
-      fetch("http://10.7.47.190:8080/api/match", {
+      const ipv4_address = Config.IPV4_ADDRESS;
+      fetch(`http://${ipv4_address}:8080/api/match`, {
         method: "GET",
         headers: {
           "content-type": "application/json",

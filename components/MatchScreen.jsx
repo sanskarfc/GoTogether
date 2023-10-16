@@ -3,7 +3,7 @@ import { ActivityIndicator, Colors } from 'react-native-paper';
 import { useAuth, useSession } from "@clerk/clerk-expo";
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Card, Button } from 'react-native-paper';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, Polygon } from 'react-native-maps';
 
 const MatchScreen = () => {
   const { session } = useSession();
@@ -67,21 +67,48 @@ const MatchScreen = () => {
                         latitudeDelta: 0.0922,
                         longitudeDelta: 0.0421,
                       }}
-                    >
-                      <Marker
-                        coordinate={{
-                          latitude: parseFloat(tripData['Start Latitude']),
-                          longitude: parseFloat(tripData['Start Longitude']),
-                        }}
-                        title="Start Location"
-                        pinColor={'green'}
+                    >          
+                      <Polygon
+                          coordinates={[
+                              { latitude: parseFloat(tripData['Start Latitude']) - 0.01, longitude: parseFloat(tripData['Start Longitude']) - 0.01},
+                              { latitude: parseFloat(tripData['Start Latitude']) - 0.01, longitude: parseFloat(tripData['Start Longitude']) - 0.001 },
+                              { latitude: parseFloat(tripData['Start Latitude']) - 0.00002, longitude: parseFloat(tripData['Start Longitude']) + 0.01 },
+                              { latitude: parseFloat(tripData['Start Latitude']) + 0.005, longitude: parseFloat(tripData['Start Longitude']) + 0.011 },
+                              { latitude: parseFloat(tripData['Start Latitude']) + 0.001, longitude: parseFloat(tripData['Start Longitude']) - 0.009 },
+                              { latitude: parseFloat(tripData['Start Latitude']) - 0.004, longitude: parseFloat(tripData['Start Longitude']) - 0.02 },
+                          ]}
+                          fillColor="rgba(0, 255, 0, 0.5)"
+                          strokeColor="#000" // fallback for when `strokeColors` is not supported by the map-provider
+                          strokeColors={[
+                              '#7F0000',
+                              '#00000000', // no color, creates a "long" gradient between the previous and next coordinate
+                              '#B24112',
+                              '#E5845C',
+                              '#238C23',
+                              '#7F0000'
+                          ]}
+                          strokeWidth={6}
                       />
-                      <Marker
-                        coordinate={{
-                          latitude: parseFloat(tripData['End Latitude']),
-                          longitude: parseFloat(tripData['End Longitude']),
-                        }}
-                        title="End Location"
+                      <Polygon
+                          coordinates={[
+                              { latitude: parseFloat(tripData['End Latitude']) - 0.01, longitude: parseFloat(tripData['End Longitude']) - 0.01},
+                              { latitude: parseFloat(tripData['End Latitude']) - 0.01, longitude: parseFloat(tripData['End Longitude']) - 0.001 },
+                              { latitude: parseFloat(tripData['End Latitude']) - 0.00002, longitude: parseFloat(tripData['End Longitude']) + 0.01 },
+                              { latitude: parseFloat(tripData['End Latitude']) + 0.005, longitude: parseFloat(tripData['End Longitude']) + 0.011 },
+                              { latitude: parseFloat(tripData['End Latitude']) + 0.001, longitude: parseFloat(tripData['End Longitude']) - 0.009 },
+                              { latitude: parseFloat(tripData['End Latitude']) - 0.004, longitude: parseFloat(tripData['End Longitude']) - 0.02 },
+                          ]}
+                          fillColor="rgba(255, 0, 0, 0.5)"
+                          strokeColor="#000" // fallback for when `strokeColors` is not supported by the map-provider
+                          strokeColors={[
+                              '#7F0000',
+                              '#00000000', // no color, creates a "long" gradient between the previous and next coordinate
+                              '#B24112',
+                              '#E5845C',
+                              '#238C23',
+                              '#7F0000'
+                          ]}
+                          strokeWidth={6}
                       />
                     </MapView>
                   </Card.Content>

@@ -46,7 +46,9 @@ const MatchScreen = () => {
 
   useEffect(() => {
     console.log("matches length --> ", Object.keys(matches).length);
-  }, [matches]);
+  }, [matches]); 
+
+  const randomNumber = Math.random() * (0.001) + 0.001;
 
   return (
     <View style={styles.container}>
@@ -72,12 +74,12 @@ const MatchScreen = () => {
                     >          
                       <Polygon
                           coordinates={[
-                              { latitude: parseFloat(tripData['Start Latitude']) - 0.01, longitude: parseFloat(tripData['Start Longitude']) - 0.01},
-                              { latitude: parseFloat(tripData['Start Latitude']) - 0.01, longitude: parseFloat(tripData['Start Longitude']) - 0.001 },
-                              { latitude: parseFloat(tripData['Start Latitude']) - 0.00002, longitude: parseFloat(tripData['Start Longitude']) + 0.01 },
-                              { latitude: parseFloat(tripData['Start Latitude']) + 0.005, longitude: parseFloat(tripData['Start Longitude']) + 0.011 },
-                              { latitude: parseFloat(tripData['Start Latitude']) + 0.001, longitude: parseFloat(tripData['Start Longitude']) - 0.009 },
-                              { latitude: parseFloat(tripData['Start Latitude']) - 0.004, longitude: parseFloat(tripData['Start Longitude']) - 0.02 },
+                              { latitude: parseFloat(tripData['Start Latitude']) - 0.01 + randomNumber, longitude: parseFloat(tripData['Start Longitude']) - 0.01 + randomNumber},
+                              { latitude: parseFloat(tripData['Start Latitude']) - 0.01 + randomNumber, longitude: parseFloat(tripData['Start Longitude']) - 0.001 + randomNumber },
+                              { latitude: parseFloat(tripData['Start Latitude']) - 0.00002 + randomNumber, longitude: parseFloat(tripData['Start Longitude']) + 0.01 + randomNumber },
+                              { latitude: parseFloat(tripData['Start Latitude']) + 0.005 + randomNumber, longitude: parseFloat(tripData['Start Longitude']) + 0.011 + randomNumber },
+                              { latitude: parseFloat(tripData['Start Latitude']) + 0.001 + randomNumber, longitude: parseFloat(tripData['Start Longitude']) - 0.009 + randomNumber },
+                              { latitude: parseFloat(tripData['Start Latitude']) - 0.004 + randomNumber, longitude: parseFloat(tripData['Start Longitude']) - 0.02 + randomNumber },
                           ]}
                           fillColor="rgba(0, 255, 0, 0.5)"
                           strokeColor="#000" // fallback for when `strokeColors` is not supported by the map-provider

@@ -123,42 +123,44 @@ const UserProfilePage = () => {
   return (
     <View style={styles.container}>
       {dataFetched && 
-        <View>
+        <View style={styles.profileContainer}>
           <Image source={{ uri: profilePicture }} style={styles.profilePicture} />
-          <Text style={styles.label}> Name:</Text>
+          <Text style={styles.label}>Name:</Text>
           <TextInput
             style={styles.input}
             value={name}
             onChangeText={setName}
-            editable={canedit} 
+            editable={canedit}
           />
           <Text style={styles.label}>Gender:</Text>
           <TextInput
             style={styles.input}
             value={gender}
             onChangeText={setGender}
-            editable={canedit} 
+            editable={canedit}
           />
           <Text style={styles.label}>Age:</Text>
           <TextInput
             style={styles.input}
             value={age}
             onChangeText={setAge}
-            editable={canedit} 
-          /> 
+            editable={canedit}
+          />
           <Text style={styles.label}>Rating:</Text>
           <TextInput
             style={styles.input}
             value={rating}
             onChangeText={setRating}
             editable={false}
-          /> 
-          {!canedit && <Button title="Edit" onPress={handleEdit} />}
-          {canedit && <Button title="Save Details" onPress={handleSave} />}
+          />
+          {!canedit ? (
+            <Button title="Edit" onPress={handleEdit} />
+          ) : (
+            <Button title="Save Details" onPress={handleSave} />
+          )}
         </View>
       }
-      {!dataFetched && <ActivityIndicator animating={true} />}
-
+      {!dataFetched && <ActivityIndicator animating={true} style={styles.activityIndicator} />}
     </View>
   );
 };
@@ -168,7 +170,14 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFD700', 
+    backgroundColor: 'linear-gradient(to bottom, #3454D1, #6511AC)', // Apply a gradient background
+  },
+  profileContainer: {
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)', // Semi-transparent white background
+    borderRadius: 10,
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Add a shadow to the container
   },
   profilePicture: {
     width: 150,
@@ -178,17 +187,21 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 18,
-    color: '#333', 
+    color: '#333', // Slightly darker text color
   },
   input: {
     fontSize: 16,
-    backgroundColor: '#FFF', 
+    backgroundColor: 'rgba(255, 255, 255, 0.7)', // Semi-transparent white background
     borderRadius: 5,
-    padding: 5,
+    padding: 10,
     width: 200,
     marginBottom: 10,
-    borderColor: '#333', 
-    borderWidth: 1, 
+    borderColor: '#333', // Slightly darker border
+    borderWidth: 1,
+    color: '#333', // Slightly darker text color
+  },
+  activityIndicator: {
+    marginTop: 20,
   },
 });
 

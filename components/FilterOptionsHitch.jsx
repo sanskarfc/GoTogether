@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { RadioButton } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import { RadioButton } from 'react-native-paper';
 
 const FilterOptionsHitch = () => {
   const [selectedLadyOption, setSelectedLadyOption] = useState('yes');
@@ -19,7 +19,6 @@ const FilterOptionsHitch = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Filter Options</Text>
       <View style={styles.filterContainer}>
         <Text style={styles.filterLabel}>Should there be at least one lady in the car?</Text>
         {ladyOptions.map(option => (

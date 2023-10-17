@@ -1,128 +1,117 @@
 import React, { useState } from 'react';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
-import { RadioButton } from 'react-native-paper';
 import Popover from 'react-native-popover-view';
 import { useNavigation } from '@react-navigation/native';
-import MapScreen from "./MapScreen";
+import MapScreen from "./MapScreen"; 
+import {Slider} from '@miblanchard/react-native-slider'; 
+import { useRoute } from '@react-navigation/native';
+
 
 const FilterOptions = () => {
-  const [age, setAge] = useState('');
-  const [selectedGender, setSelectedGender] = useState('');
-  const [selectedLadies, setSelectedLadies] = useState('none');
-  const [selectedMen, setSelectedMen] = useState('none');
-  const [detourMinutes, setDetourMinutes] = useState('');
-  const [showDetourInfo, setShowDetourInfo] = useState(false);
-  const [infoButtonRef, setInfoButtonRef] = useState(null);
-
-  const genderOptions = ['Male', 'Female', 'Other']; 
-  const ladiesOptions = ['none', '1', '2', '3', '4'];
-  const menOptions = ['none', '1', '2', '3', '4'];
-
   const navigation = useNavigation();
+  const [ladiesValue, setLadiesValue] = useState(0);
+  const [menValue, setMenValue] = useState(0);
+  const [detourValue, setDetourValue] = useState(0); 
+  const [date, setDate] = useState(new Date());  
+  const [freeSeats, setFreeSeats] = useState(0);
 
-  const toggleDetourInfo = () => {
-    setShowDetourInfo(!showDetourInfo);
-  };
+  const route = useRoute();
+  const { poolType } = route.params;
 
-  const onInfoButtonPress = event => {
-    setInfoButtonRef(event.target);
-    toggleDetourInfo();
-  };
-
-  const handleSubmit = () => {
-    // Logic to handle the submit action
-    // For example, you can navigate to the MapScreen component
-    navigation.navigate('MapScreen');
+  const handleSubmit = () => { 
+    navigation.navigate('MapScreen', {
+      date: date.toString(),
+      ladiesValue: ladiesValue,
+      menValue: menValue,
+      detourValue: detourValue,
+      poolType: poolType,
+      freeSeats: freeSeats, 
+    });
   };
 
   return (
     <View style={styles.container}>
       <ScrollView>
-        <View style={styles.filterContainer}>
-          <Text style={styles.filterLabel}>Age:</Text>
-          <View style={styles.inputContainer}>
-            <TextInput
-              value={age}
-              style={styles.input}
-              onChangeText={text => setAge(text)}
-              keyboardType="numeric"
-              placeholder="Enter your age"
-            />
-          </View>
-        </View>
 
-        <View style={styles.filterContainer}>
-          <Text style={styles.filterLabel}>Gender:</Text>
-          {genderOptions.map(option => (
-          <View key={option} style={styles.radioButtonContainer}>
-            <RadioButton.Android
-              value={option}
-              color="blue"
-              onPress={() => setSelectedGender(option)}
-              status={selectedGender === option ? 'checked' : 'unchecked'}
-            />
-              <Text>{option}</Text>
+        <View style={styles.filterContainer}> 
+          <Text style={styles.filterLabel}>Number of free seats in your car?</Text>
+            <View style={styles_slider.container}>
+                <Slider
+                    value={freeSeats}
+                    onValueChange={value => setFreeSeats(value)}
+                    minimumValue={0}
+                    maximumValue={10}
+                    step={1}
+                    trackClickable={true}
+                /> 
+                <Text>Value: {freeSeats}</Text>
             </View>
-          ))}
         </View>
 
         <View style={styles.filterContainer}>
-          <Text style={styles.filterLabel}>Number of Ladies in the Car:</Text>
-          {ladiesOptions.map(option => (
-            <View key={option} style={styles.radioButtonContainer}>
-              <RadioButton.Android
-                value={option}
-                color="blue"
-                onPress={() => setSelectedLadies(option)}
-                status={selectedLadies === option ? 'checked' : 'unchecked'}
-              />
-              <Text>{option}</Text>
+          <Text style={styles.filterLabel}>Number of Ladies in the Car</Text>
+            <View style={styles_slider.container}>
+                <Slider
+                    value={ladiesValue}
+                    onValueChange={value => setLadiesValue(value)}
+                    minimumValue={0}
+                    maximumValue={30}
+                    step={1}
+                    trackClickable={true}
+                /> 
+                <Text>Value: {ladiesValue}</Text>
             </View>
-          ))}
         </View>
 
         <View style={styles.filterContainer}>
-          <Text style={styles.filterLabel}>Number of Men in the Car:</Text>
-          {menOptions.map(option => (
-            <View key={option} style={styles.radioButtonContainer}>
-              <RadioButton.Android
-                value={option}
-                color="blue"
-                onPress={() => setSelectedMen(option)}
-                status={selectedMen === option ? 'checked' : 'unchecked'}
-              />
-              <Text>{option}</Text>
+          <Text style={styles.filterLabel}>Number of Men in the Car</Text>
+            <View style={styles_slider.container}>
+                <Slider
+                    value={menValue}
+                    onValueChange={value => setMenValue(value)}
+                    minimumValue={0}
+                    maximumValue={30}
+                    step={1}
+                    trackClickable={true}
+                /> 
+                <Text>Value: {menValue}</Text>
             </View>
-          ))}
         </View>
 
         <View style={styles.filterContainer}>
-          <Text style={styles.filterLabel}>Number of Minutes of Detour:</Text>
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              value={detourMinutes}
-              onChangeText={text => setDetourMinutes(text)}
-              keyboardType="numeric"
-              placeholder="Enter minutes"
-            />
-            <TouchableOpacity onPress={onInfoButtonPress}>
-              <Text style={styles.infoButton}>ℹ️</Text>
-            </TouchableOpacity>
-          </View>
-          <Popover
-            isVisible={showDetourInfo}
-            fromView={infoButtonRef}
-            onRequestClose={toggleDetourInfo}
-            popoverStyle={styles.popover}
-          >
-            <Text style={styles.popoverText}>
-              Enter the number of minutes of detour that is acceptable to you
-              so that you can drop off your fellow rider to their destination.
-            </Text>
-          </Popover>
+          <Text style={styles.filterLabel}>
+            Number of Minutes of Detour Acceptable to You?
+          </Text>
+            <View style={styles_slider.container}>
+                <Slider
+                    value={detourValue}
+                    onValueChange={value => setDetourValue(value)}
+                    minimumValue={0}
+                    maximumValue={30}
+                    step={1}
+                    trackClickable={true}
+                /> 
+                <Text>Value: {detourValue}</Text>
+            </View>
         </View>
+
+        <View style={styles.filterContainer}>
+          <Text style={styles.filterLabel}>Select a Date and Time</Text>
+          <DateTimePicker
+            value={date}
+            mode="datetime"
+            display="default"
+            onChange={(event, selectedDate) => {
+              if (selectedDate) {
+                setDate(selectedDate);
+              }
+            }}
+          />
+        </View> 
+
       </ScrollView>
+
       <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
         <Text style={styles.submitButtonText}>Submit</Text>
       </TouchableOpacity>
@@ -203,6 +192,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
+}); 
+
+const styles_slider = StyleSheet.create({
+    container: {
+        flex: 1,
+        marginLeft: 10,
+        marginRight: 10,
+        alignItems: 'stretch',
+        justifyContent: 'center',
+    },
 });
 
 export default FilterOptions;

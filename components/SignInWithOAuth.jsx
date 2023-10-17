@@ -1,6 +1,6 @@
 import React from "react";
 import * as WebBrowser from "expo-web-browser";
-import { Button } from "react-native";
+import { Button, View } from "react-native";
 import { useOAuth } from "@clerk/clerk-expo";
 import { useWarmUpBrowser } from "../hooks/useWarmUpBrowser";
 
@@ -13,12 +13,11 @@ const SignInWithOAuth = () => {
 
   const onPress = React.useCallback(async () => {
     try {
-      const { createdSessionId, signIn, signUp, setActive } =
-        await startOAuthFlow();
-
+      const { createdSessionId, signIn, signUp, setActive } = await startOAuthFlow();
       if (createdSessionId) {
         setActive({ session: createdSessionId });
-      } else {
+      }
+      else {
         // Use signIn or signUp for next steps such as MFA
       }
     } catch (err) {
@@ -27,10 +26,14 @@ const SignInWithOAuth = () => {
   }, []);
 
   return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+
     <Button
       title="Sign in with Google"
       onPress={onPress}
-    />
+      />
+      
+    </View>
   );
 }
 export default SignInWithOAuth;

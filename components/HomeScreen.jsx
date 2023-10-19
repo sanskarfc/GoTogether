@@ -52,7 +52,7 @@ const HomeScreen = () => {
   }; 
 
   const handleChatButtonPress = () => {
-    navigation.navigate('ChatScreen'); // Navigate to ChatScreen
+    navigation.navigate('ChatScreen');
   };
   function getTimeDiff() {
     const userCreatedAt = moment(user.createdAt.toString(), 'ddd MMM DD YYYY HH:mm:ss GMTZ').utc();

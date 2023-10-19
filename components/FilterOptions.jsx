@@ -9,18 +9,20 @@ import { useRoute } from '@react-navigation/native';
 
 
 const FilterOptions = () => {
-  const navigation = useNavigation();
+  const route = useRoute();
+  const { poolType } = route.params;
+
   const [ladiesValue, setLadiesValue] = useState(0);
   const [menValue, setMenValue] = useState(0);
   const [detourValue, setDetourValue] = useState(0); 
   const [date, setDate] = useState(new Date());  
   const [freeSeats, setFreeSeats] = useState(0);
 
-  const route = useRoute();
-  const { poolType } = route.params;
+  const navigation = useNavigation();
 
   const handleSubmit = () => { 
     navigation.navigate('MapScreen', {
+      poolType: poolType,
       date: date.toString(),
       ladiesValue: ladiesValue,
       menValue: menValue,

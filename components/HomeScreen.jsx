@@ -30,19 +30,16 @@ const HomeScreen = () => {
   const navigation = useNavigation(); 
   const { isLoaded, session, isSignedIn } = useSession();
   const { user } = useUser();
-  const [poolType, setPoolType] = useState("cab");
 
   const handleCarButtonPress = () => {
-    setPoolType("car");
     navigation.navigate('FilterOptions', {
-      poolType: poolType,
+      poolType: "car",
     }); 
   };
 
   const handleHitchButtonPress = () => {
-    setPoolType("cab");
     navigation.navigate('FilterOptionsHitch', {
-      poolType: poolType,
+      poolType: "cab",
     }); 
   };
 

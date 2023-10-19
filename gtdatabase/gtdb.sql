@@ -22,10 +22,13 @@ CREATE TABLE Trip (
     end_latitude DECIMAL(18, 15) NOT NULL,
     start_longitude DECIMAL(18, 15) NOT NULL,
     end_longitude DECIMAL(18, 15) NOT NULL,
-    start_time TIMESTAMP,
-    number_of_seats INT NOT NULL,
-    number_of_females INT NOT NULL,
+    start_time TIMESTAMP NOT NULL,
+    number_of_seats INT,
+    number_of_females INT,
     rideby VARCHAR(255) NOT NULL,
+    poolType VARCHAR(4) NOT NULL,
+    seatsNeeded INT,
+    CHECK (poolType IN ('car', 'cab')),
     KEY rideby_idx (rideby)
 );
 

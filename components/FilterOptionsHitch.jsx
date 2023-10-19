@@ -1,11 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity ,ScrollView} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { RadioButton } from 'react-native-paper';
+import { useRoute } from '@react-navigation/native';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import {Slider} from '@miblanchard/react-native-slider'; 
 
-const FilterOptionsHitch = () => {
+const FilterOptionsHitch = () => { 
+  const route = useRoute();
+  const { poolType } = route.params;
+
   const [selectedLadyOption, setSelectedLadyOption] = useState('yes');
   const [selectedCabOption, setSelectedCabOption] = useState('yes');
+  const [date, setDate] = useState(new Date());  
+  const [seatsNeeded, setSeatsNeeded] = useState(1);
 
   const ladyOptions = ['Yes', "Doesn't Matter"];
   const cabOptions = ['Yes', 'No'];
@@ -13,40 +21,78 @@ const FilterOptionsHitch = () => {
   const navigation = useNavigation();
 
   const handleSubmit = () => {
-    // Navigate to the MapScreen
-    navigation.navigate('MapScreen');
+    navigation.navigate('MapScreen', {
+      poolType: poolType,
+      date: date.toString(),
+      ladyOption: selectedLadyOption,
+      cabOption: selectedCabOption,
+      seatsNeeded: seatsNeeded,
+    });
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.filterContainer}>
-        <Text style={styles.filterLabel}>Should there be at least one lady in the car?</Text>
-        {ladyOptions.map(option => (
-          <View key={option} style={styles.radioButtonContainer}>
-            <RadioButton.Android
-              value={option}
-              color="#FF69B4" // Pink color
-              onPress={() => setSelectedLadyOption(option)}
-              status={selectedLadyOption === option ? 'checked' : 'unchecked'}
-            />
-            <Text style={styles.radioButtonLabel}>{option}</Text>
-          </View>
-        ))}
-      </View>
-      <View style={styles.filterContainer}>
-        <Text style={styles.filterLabel}>Are you okay to take a cab with someone?</Text>
-        {cabOptions.map(option => (
-          <View key={option} style={styles.radioButtonContainer}>
-            <RadioButton.Android
-              value={option}
-              color="#87CEFA" // Light blue color
-              onPress={() => setSelectedCabOption(option)}
-              status={selectedCabOption === option ? 'checked' : 'unchecked'}
-            />
-            <Text style={styles.radioButtonLabel}>{option}</Text>
-          </View>
-        ))}
-      </View>
+      <ScrollView>
+        <View style={styles.filterContainer}> 
+          <Text style={styles.filterLabel}>How many seats do you need?</Text>
+            <View style={styles_slider.container}>
+                <Slider
+                    value={seatsNeeded}
+                    onValueChange={value => setSeatsNeeded(value)}
+                    minimumValue={1}
+                    maximumValue={10}
+                    step={1}
+                    trackClickable={true}
+                /> 
+                <Text>Value: {seatsNeeded}</Text>
+            </View>
+        </View>
+
+        <View style={styles.filterContainer}>
+          <Text style={styles.filterLabel}>Should there be at least one lady in the car?</Text>
+          {ladyOptions.map(option => (
+            <View key={option} style={styles.radioButtonContainer}>
+              <RadioButton.Android
+                value={option}
+                color="#FF69B4" // Pink color
+                onPress={() => setSelectedLadyOption(option)}
+                status={selectedLadyOption === option ? 'checked' : 'unchecked'}
+              />
+              <Text style={styles.radioButtonLabel}>{option}</Text>
+            </View>
+          ))}
+        </View> 
+
+        <View style={styles.filterContainer}>
+          <Text style={styles.filterLabel}>Are you okay to take a cab with someone?</Text>
+          {cabOptions.map(option => (
+            <View key={option} style={styles.radioButtonContainer}>
+              <RadioButton.Android
+                value={option}
+                color="#87CEFA" // Light blue color
+                onPress={() => setSelectedCabOption(option)}
+                status={selectedCabOption === option ? 'checked' : 'unchecked'}
+              />
+              <Text style={styles.radioButtonLabel}>{option}</Text>
+            </View>
+          ))}
+        </View> 
+
+        <View style={styles.filterContainer}>
+          <Text style={styles.filterLabel}>Select a Date and Time</Text>
+          <DateTimePicker
+            value={date}
+            mode="datetime"
+            display="default"
+            onChange={(event, selectedDate) => {
+              if (selectedDate) {
+                setDate(selectedDate);
+              }
+            }}
+          />
+        </View> 
+      </ScrollView> 
+
       <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
         <Text style={styles.submitButtonText}>Submit</Text>
       </TouchableOpacity>
@@ -104,6 +150,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
+}); 
+
+const styles_slider = StyleSheet.create({
+    container: {
+        flex: 1,
+        marginLeft: 10,
+        marginRight: 10,
+        alignItems: 'stretch',
+        justifyContent: 'center',
+    },
 });
 
 export default FilterOptionsHitch;

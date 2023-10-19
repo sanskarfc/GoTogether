@@ -11,11 +11,10 @@ import { useAuth, useSession, useUser } from "@clerk/clerk-expo";
 
 const MapScreen = () => {
   const route = useRoute();
-  const { ladiesValue, menValue, detourValue, date, freeSeats } = route.params; 
+  const { seatsNeeded, poolType, ladiesValue, menValue, detourValue, date, freeSeats, ladyOption, cabOption } = route.params; 
   const { sessionId, getToken } = useAuth();
   const { session } = useSession(); 
   const navigation = useNavigation(); 
-
 
   const [travelTime, setTravelTime] = useState(null);
   const [initialRegion, setInitialRegion] = useState(null);
@@ -27,17 +26,36 @@ const MapScreen = () => {
 
   async function handleLetsGo() {
     const token = await session.getToken();  
+    var userData = {}; 
 
-    const userData = {
-      ladiesValue: ladiesValue,
-      menValue: menValue,
-      date: date,
-      travelTime: travelTime,
-      detourValue: detourValue,
-      startCoordinates: startCoordinates,
-      endCoordinates: endCoordinates,
-      freeSeats: freeSeats,
-    };
+    if(ladiesValue === undefined) {
+      userData = {
+        date: date,
+        ladyOption: ladyOption,
+        cabOption: cabOption,
+        poolType: poolType,
+        startCoordinates: startCoordinates,
+        endCoordinates: endCoordinates,
+        seatsNeeded: seatsNeeded,
+      }
+    }
+    else {
+      userData = {
+        ladiesValue: ladiesValue,
+        menValue: menValue,
+        date: date,
+        travelTime: travelTime,
+        detourValue: detourValue,
+        startCoordinates: startCoordinates,
+        endCoordinates: endCoordinates,
+        freeSeats: freeSeats,
+        poolType: poolType,
+      };
+    }
+
+    console.log("user data --> ", userData);
+
+
     const ipv4_address = Config.IPV4_ADDRESS;
     fetch(`http://${ipv4_address}:8080/api/trip`, {
       method: "POST",

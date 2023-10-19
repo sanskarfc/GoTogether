@@ -151,6 +151,7 @@ const styles = StyleSheet.create({
   cardText: {
     fontSize: 16,
     marginBottom: 8,
+    fontWeight: 'bold',
   },
   map: {
     height: 200,

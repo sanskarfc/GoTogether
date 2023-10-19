@@ -125,6 +125,8 @@ class RequestHandler(BaseHTTPRequestHandler):
                     return
 
                 token = auth_header.split()[1]
+
+                options = {"verify_exp": False, "verify_aud": False}
                 decoded_token = jwt.decode(
                     token, public_key, algorithms=["RS256"], options=options
                 )
@@ -135,6 +137,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                     "SELECT name from Users where user_id='" + user_id + "';"
                 )
                 user_name = str((cursor.fetchone())[0])
+                print("user name --> ", user_name)
                 cursor.execute("SELECT * FROM Trip;")
                 user_data = cursor.fetchall()
 
@@ -316,11 +319,9 @@ class RequestHandler(BaseHTTPRequestHandler):
                 token = auth_header.split()[1]
                 print("hey")
                 options = {"verify_exp": False, "verify_aud": False}
-                print("sex")
                 decoded_token = jwt.decode(
                     token, public_key, algorithms=["RS256"], options=options
                 )
-                print("mihir will stay virgin")
                 user_id = decoded_token.get("sub")
 
                 cursor = connection.cursor()
@@ -423,6 +424,8 @@ class RequestHandler(BaseHTTPRequestHandler):
                     return
 
                 token = auth_header.split()[1]
+                options = {"verify_exp": False, "verify_aud": False}
+
                 decoded_token = jwt.decode(
                     token, public_key, algorithms=["RS256"], options=options
                 )
@@ -449,22 +452,42 @@ class RequestHandler(BaseHTTPRequestHandler):
                 )
                 user_data = cursor.fetchone()
 
+
                 print("user_data --> ", user_data)
                 if user_data[0] == 0:
-                    cursor.execute(
-                        "INSERT INTO Trip (trip_id, start_longitude, start_latitude, end_latitude, end_longitude, number_of_seats, number_of_females, rideby, start_time) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);",
-                        (
-                            str(uuid_str),
-                            str(start_longitude),
-                            str(start_latitude),
-                            str(end_latitude),
-                            str(end_longitude),
-                            str(data["freeSeats"][0]),
-                            str(data["ladiesValue"][0]),
-                            str(user_id),
-                            str(timestamp_str),
-                        ),
-                    )
+                    if(data["poolType"] == "car"):
+                        cursor.execute(
+                            "INSERT INTO Trip (trip_id, start_longitude, start_latitude, end_latitude, end_longitude, number_of_seats, number_of_females, rideby, start_time, poolType, seatsNeeded) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
+                            (
+                                str(uuid_str),
+                                str(start_longitude),
+                                str(start_latitude),
+                                str(end_latitude),
+                                str(end_longitude),
+                                str(data["freeSeats"][0]),
+                                str(data["ladiesValue"][0]),
+                                str(user_id),
+                                str(timestamp_str),
+                                str(data["poolType"])
+                            ),
+                        )
+                    else: 
+                        cursor.execute(
+                            "INSERT INTO Trip (trip_id, start_longitude, start_latitude, end_latitude, end_longitude, number_of_seats, number_of_females, rideby, start_time, poolType, seatsNeeded) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
+                            (
+                                str(uuid_str),
+                                str(start_longitude),
+                                str(start_latitude),
+                                str(end_latitude),
+                                str(end_longitude),
+                                None,
+                                None,
+                                str(user_id),
+                                str(timestamp_str),
+                                str(data["poolType"]),
+                                str(data["seatsNeeded"][0])
+                            ),
+                        )
                     print("Added Trip to Database")
                 else:
                     print("A trip already exists for this user! Not adding this one.")

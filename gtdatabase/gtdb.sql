@@ -12,9 +12,6 @@ CREATE TABLE Users (
     ratings INT CHECK (ratings >= 0 AND ratings <= 5) 
 );
 
--- TODO: 
--- 1. Add type in trip (ENUM car or cab) 
-
 drop table if exists Trip;
 CREATE TABLE Trip (
     trip_id VARCHAR(255) PRIMARY KEY,

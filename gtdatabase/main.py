@@ -130,19 +130,22 @@ class RequestHandler(BaseHTTPRequestHandler):
                 decoded_token = jwt.decode(
                     token, public_key, algorithms=["RS256"], options=options
                 )
-                user_id = decoded_token.get("sub")
+                user_id = decoded_token.get("sub")  
 
-                cursor = connection.cursor()
+                cursor = connection.cursor() 
                 cursor.execute(
                     "SELECT name from Users where user_id='" + user_id + "';"
                 )
                 user_name = str((cursor.fetchone())[0])
-                print("user name --> ", user_name)
+                print("user name --> ", user_name) 
+
                 cursor.execute("SELECT * FROM Trip;")
                 user_data = cursor.fetchall()
 
                 cursor.execute("SELECT * from Trip where rideby='" + user_id + "'")
-                current_user_trip_details = cursor.fetchone()
+                current_user_trip_details = cursor.fetchone() 
+
+                poolType = str(current_user_trip_details[9])
                 user1_startLat = float(current_user_trip_details[1])
                 user1_startLon = float(current_user_trip_details[3])
                 user1_endLat = float(current_user_trip_details[2])
@@ -161,8 +164,9 @@ class RequestHandler(BaseHTTPRequestHandler):
                         user1_startLat, user1_startLon, float(trip[1]), float(trip[3])
                     )
 
+
                     ##################### SENDING POST REQUEST FOR TIMES #######################
-                    url = "https://api.openrouteservice.org/v2/matrix/driving-car"
+                    url = 'https://api.openrouteservice.org/v2/matrix/driving-car'  
 
                     ALat = user1_startLat
                     ALon = user1_startLon
@@ -172,98 +176,83 @@ class RequestHandler(BaseHTTPRequestHandler):
                     CLat = float(trip[1])
                     CLon = float(trip[3])
                     DLat = float(trip[2])
-                    DLon = float(trip[4])
+                    DLon = float(trip[4]) 
 
-                    timeAB = 0
-                    timeAD = 0
-                    timeDB = 0
+                    timeAB=0 
+                    timeAD=0
+                    timeDB=0
 
                     ################# A --> B ##################
                     locationData = {
-                        "locations": [[ALon, ALat], [BLon, BLat]],
-                        "destinations": [1],
+                        'locations': [[ALon, ALat], [BLon, BLat]],
+                        'destinations': [1]
                     }
                     headers = {
-                        "Accept": "application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8",
-                        "Authorization": os.getenv("OPEN_SOURCE_KEY"),
-                        "Content-Type": "application/json; charset=utf-8",
-                    }
+                        'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+                        'Authorization': os.getenv("OPEN_SOURCE_KEY"),
+                        'Content-Type': 'application/json; charset=utf-8'
+                    } 
 
-                    response = requests.post(
-                        url, data=json.dumps(locationData), headers=headers
-                    )
+                    response = requests.post(url, data=json.dumps(locationData), headers=headers) 
 
                     if response.status_code == 200:
                         jsonDataResponse = json.loads(response.text)
-                        timeAB = (jsonDataResponse.get("durations"))[0][0]
+                        timeAB = (jsonDataResponse.get('durations'))[0][0]
                     else:
-                        print(
-                            "POST request failed with status code:",
-                            response.status_code,
-                        )
+                        print('POST request failed with status code:', response.status_code)  
 
-                    #################   END    ###################
+                    #################   END    ###################  
 
-                    ################# A --> D ##################
+
+                    ################# A --> D ##################  
                     locationData = {
-                        "locations": [[ALon, ALat], [DLon, DLat]],
-                        "destinations": [1],
+                        'locations': [[ALon, ALat], [DLon, DLat]],
+                        'destinations': [1]
                     }
                     headers = {
-                        "Accept": "application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8",
-                        "Authorization": os.getenv("OPEN_SOURCE_KEY"),
-                        "Content-Type": "application/json; charset=utf-8",
-                    }
+                        'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+                        'Authorization': os.getenv("OPEN_SOURCE_KEY"),
+                        'Content-Type': 'application/json; charset=utf-8'
+                    } 
 
-                    response = requests.post(
-                        url, data=json.dumps(locationData), headers=headers
-                    )
+                    response = requests.post(url, data=json.dumps(locationData), headers=headers) 
 
                     if response.status_code == 200:
                         jsonDataResponse = json.loads(response.text)
-                        timeAD = (jsonDataResponse.get("durations"))[0][0]
+                        timeAD = (jsonDataResponse.get('durations'))[0][0]
                     else:
-                        print(
-                            "POST request failed with status code:",
-                            response.status_code,
-                        )
+                        print('POST request failed with status code:', response.status_code)  
 
-                    #####################   END   ###################
+                    #####################   END   ###################   
 
-                    ################# D --> B ##################
+
+                    ################# D --> B ##################  
                     locationData = {
-                        "locations": [[DLon, DLat], [BLon, BLat]],
-                        "destinations": [1],
+                        'locations': [[DLon, DLat], [BLon, BLat]],
+                        'destinations': [1]
                     }
                     headers = {
-                        "Accept": "application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8",
-                        "Authorization": os.getenv("OPEN_SOURCE_KEY"),
-                        "Content-Type": "application/json; charset=utf-8",
-                    }
+                        'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+                        'Authorization': os.getenv("OPEN_SOURCE_KEY"),
+                        'Content-Type': 'application/json; charset=utf-8'
+                    } 
 
-                    response = requests.post(
-                        url, data=json.dumps(locationData), headers=headers
-                    )
+                    response = requests.post(url, data=json.dumps(locationData), headers=headers) 
 
                     if response.status_code == 200:
                         jsonDataResponse = json.loads(response.text)
-                        timeDB = (jsonDataResponse.get("durations"))[0][0]
+                        timeDB = (jsonDataResponse.get('durations'))[0][0]
                     else:
-                        print(
-                            "POST request failed with status code:",
-                            response.status_code,
-                        )
-                    #################    END   ######################
+                        print('POST request failed with status code:', response.status_code)  
+                    #################    END   ######################    
 
                     print("timeAB --> ", timeAB)
                     print("timeAD --> ", timeAD)
                     print("timeDB --> ", timeDB)
 
-                    ##########################################################################
+                    ########################################################################## 
 
-                    formattedDetour = "{:.1f}".format(
-                        float(timeAD + timeDB - timeAB) / 60
-                    )
+                    formattedDetour = "{:.1f}".format(float(timeAD + timeDB - timeAB)/60)
                     print("abcd --> ", formattedDetour)
 
                     if distance < 5 and str(trip[8]) != user_id:
@@ -468,7 +457,8 @@ class RequestHandler(BaseHTTPRequestHandler):
                                 str(data["ladiesValue"][0]),
                                 str(user_id),
                                 str(timestamp_str),
-                                str(data["poolType"])
+                                str(data["poolType"]),
+                                None
                             ),
                         )
                     else: 

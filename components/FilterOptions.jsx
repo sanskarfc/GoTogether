@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import Popover from 'react-native-popover-view';
 import { useNavigation } from '@react-navigation/native';
 import MapScreen from "./MapScreen"; 
@@ -17,6 +17,7 @@ const FilterOptions = () => {
   const [detourValue, setDetourValue] = useState(0); 
   const [date, setDate] = useState(new Date());  
   const [freeSeats, setFreeSeats] = useState(0);
+  const [showDateTimePicker, setShowDateTimePicker] = useState(true);
 
   const navigation = useNavigation();
 
@@ -100,17 +101,30 @@ const FilterOptions = () => {
 
         <View style={styles.filterContainer}>
           <Text style={styles.filterLabel}>Select a Date and Time</Text>
-          <DateTimePicker
-            value={date}
-            mode="datetime"
-            display="default"
-            onChange={(event, selectedDate) => {
-              if (selectedDate) {
-                setDate(selectedDate);
-              }
-            }}
-          />
-        </View> 
+          <TouchableOpacity onPress={() => setShowDateTimePicker(true)}>
+            <Text>{date.toISOString()}</Text>
+          </TouchableOpacity>
+        </View>
+
+        <Modal
+          transparent={true}
+          visible={showDateTimePicker}
+          animationType="slide"
+        >
+          <View style={styles.datePickerContainer}>
+            <DateTimePicker
+              value={date}
+              mode="datetime"
+              display="default"
+              onChange={(event, selectedDate) => {
+                if (selectedDate) {
+                  setShowDateTimePicker(false);
+                  setDate(selectedDate);
+                }
+              }}
+            />
+          </View>
+        </Modal>
 
       </ScrollView>
 

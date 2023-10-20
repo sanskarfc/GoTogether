@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity ,ScrollView} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity ,ScrollView, Modal} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { RadioButton } from 'react-native-paper';
 import { useRoute } from '@react-navigation/native';
@@ -14,6 +14,7 @@ const FilterOptionsHitch = () => {
   const [selectedCabOption, setSelectedCabOption] = useState('yes');
   const [date, setDate] = useState(new Date());  
   const [seatsNeeded, setSeatsNeeded] = useState(1);
+  const [showDateTimePicker, setShowDateTimePicker] = useState(true);
 
   const ladyOptions = ['Yes', "Doesn't Matter"];
   const cabOptions = ['Yes', 'No'];
@@ -80,17 +81,30 @@ const FilterOptionsHitch = () => {
 
         <View style={styles.filterContainer}>
           <Text style={styles.filterLabel}>Select a Date and Time</Text>
-          <DateTimePicker
-            value={date}
-            mode="datetime"
-            display="default"
-            onChange={(event, selectedDate) => {
-              if (selectedDate) {
-                setDate(selectedDate);
-              }
-            }}
-          />
-        </View> 
+          <TouchableOpacity onPress={() => setShowDateTimePicker(true)}>
+            <Text>{date.toISOString()}</Text>
+          </TouchableOpacity>
+        </View>
+
+        <Modal
+          transparent={true}
+          visible={showDateTimePicker}
+          animationType="slide"
+        >
+          <View style={styles.datePickerContainer}>
+            <DateTimePicker
+              value={date}
+              mode="datetime"
+              display="default"
+              onChange={(event, selectedDate) => {
+                if (selectedDate) {
+                  setShowDateTimePicker(false);
+                  setDate(selectedDate);
+                }
+              }}
+            />
+          </View>
+        </Modal>
       </ScrollView> 
 
       <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>

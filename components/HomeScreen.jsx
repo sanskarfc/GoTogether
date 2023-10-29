@@ -106,9 +106,6 @@ const HomeScreen = () => {
       <TouchableOpacity style={styles.button} onPress={handleHitchButtonPress}>
         <Text style={styles.buttonText}>I do not have a Car</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={handleChatButtonPress}>
-        <Text style={styles.buttonText}>Open Chat</Text>
-      </TouchableOpacity>
       <SignOut />
     </View>
   );

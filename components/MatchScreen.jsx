@@ -4,12 +4,16 @@ import { useAuth, useSession } from "@clerk/clerk-expo";
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Card, Button } from 'react-native-paper';
 import MapView, { Marker, Polygon } from 'react-native-maps';
+import { useNavigation } from '@react-navigation/native';
 import Config from "./../config.json";
 
 const MatchScreen = () => {
   const { session } = useSession();
   const [matches, setMatches] = useState({});
   const [showComponent, setShowComponent] = useState(false); // To control component visibility
+  const { userId } = useAuth();
+
+  const navigation = useNavigation(); 
 
   useEffect(() => {
     async function GetMatches() {
@@ -119,7 +123,10 @@ const MatchScreen = () => {
                   <Card.Actions>
                     <Button
                       onPress={() => {
-
+                        navigation.navigate('ChatScreen', {
+                          matcherId: tripData["RiderId"],
+                          myId: userId,
+                        });
                       }}
                       color="#1976D2"
                     >

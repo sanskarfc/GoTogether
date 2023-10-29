@@ -2,8 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, Button, FlatList, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { io } from 'socket.io-client';
 import Config from "./../config.json";
+import { useRoute } from '@react-navigation/native';
 
 const ChatScreen = () => {
+  const route = useRoute();
+  const { matcherId, myId } = route.params; 
+  console.log("matcherId --> ", matcherId);
+  console.log("myId --> ", myId);
+
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const flatListRef = useRef(null);
@@ -18,6 +24,7 @@ const ChatScreen = () => {
   };
 
   useEffect(() => {
+    console.log("in useEffect!");
     clientSocket.current.on('message', receiveMessage);
 
     return () => {

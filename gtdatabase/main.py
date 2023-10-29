@@ -139,7 +139,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 user_name = str((cursor.fetchone())[0])
                 print("user name --> ", user_name) 
 
-                cursor.execute("SELECT * FROM Trip;")
+                cursor.execute("SELECT * FROM Trip where rideby!='"+user_id+"';")
                 user_data = cursor.fetchall()
 
                 cursor.execute("SELECT * from Trip where rideby='" + user_id + "'")
@@ -263,6 +263,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                             "End Longitude": float(trip[4]),
                             "Ride Start Time": str(trip[5]),
                             "Rider": str(rider_name),
+                            "RiderId": str(trip[8]),
                             "Your Detour": formattedDetour,
                         }
 

@@ -243,6 +243,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
   },
-});
+  buttonContainer: {
+    flexDirection: 'row', // Ensure buttons are in a row
+    justifyContent: 'space-between', // Add space between buttons
+  },
+  createButton: {
+    marginStart: 10, // Add margin to the start (left) of the button
+  },
+}); 
 
 export default MatchScreen;

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { ActivityIndicator, Colors } from 'react-native-paper';
+import { ActivityIndicator, Colors, Button } from 'react-native-paper';
 import { useAuth, useSession } from "@clerk/clerk-expo";
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { Card, Button } from 'react-native-paper';
+import { Card } from 'react-native-paper';
 import MapView, { Marker, Polygon } from 'react-native-maps';
 import { useNavigation } from '@react-navigation/native';
 import Config from "./../config.json";
@@ -10,10 +10,66 @@ import Config from "./../config.json";
 const MatchScreen = () => {
   const { session } = useSession();
   const [matches, setMatches] = useState({});
-  const [showComponent, setShowComponent] = useState(false); // To control component visibility
+  const [showComponent, setShowComponent] = useState(false); 
   const { userId } = useAuth();
+  const [isSelecting, setIsSelecting] = useState(false); 
+  const [selectedUserIds, setSelectedUserIds] = useState([]);
+  const navigation = useNavigation();  
+  const [selectedCards, setSelectedCards] = useState({}); 
 
-  const navigation = useNavigation(); 
+  const toggleSelecting = () => {
+    if(isSelecting) {
+      setSelectedCards({});
+    }
+    setIsSelecting(!isSelecting);
+  };
+
+  useEffect(() => {
+    console.log("selected: ", selectedCards);
+  }, [selectedCards]);
+
+  const handleCardSelect = (matcherId) => {
+    if (selectedCards[matcherId]) {
+      const updatedSelectedCards = { ...selectedCards };
+      delete updatedSelectedCards[matcherId];
+      setSelectedCards(updatedSelectedCards);
+    } else {
+      setSelectedCards({ ...selectedCards, [matcherId]: true });
+    }
+  };  
+
+  const createGroup = () => {
+    console.log("Creating a group chat!");
+    groupList = {
+      memberList: selectedCards,
+      group_created_time: new Date().toISOString(),  
+    }
+    console.log("groupList --> ", groupList);
+    async function requestGroups() {
+      const token = await session.getToken();
+      const ipv4_address = Config.IPV4_ADDRESS;
+      fetch(`http://${ipv4_address}:8080/api/group/create`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "authorization": `bearer ${token}`,
+          mode: "cors",
+        },
+        body: JSON.stringify(groupList),
+      })
+        .then((response) => {
+          if(!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+        .then((data) => {
+
+        })
+    }
+    requestGroups();
+    setIsSelecting(!isSelecting);
+  }
 
   useEffect(() => {
     async function GetMatches() {
@@ -56,8 +112,19 @@ const MatchScreen = () => {
 
   return (
     <View style={styles.container}>
+
       {showComponent && ( // Conditionally render the component
         <ScrollView>
+        <View style={styles.buttonContainer}>
+          <Button onPress={toggleSelecting} mode="contained">
+            {isSelecting ? "Cancel" : "Create Group Chat"}
+          </Button>
+          {isSelecting && (
+            <Button onPress={createGroup} mode="contained">
+                Create!
+            </Button>
+          )} 
+        </View>
           {Object.keys(matches).length > 0 ? (
             Object.keys(matches).map((tripId) => {
               const tripData = matches[tripId];
@@ -119,6 +186,14 @@ const MatchScreen = () => {
                           strokeWidth={6}
                       />
                     </MapView>
+                    {isSelecting && (
+                      <Button
+                        onPress={() => handleCardSelect(tripData["RiderId"])}
+                        mode="contained"
+                      >
+                        Select
+                      </Button>
+                    )}
                   </Card.Content>
                   <Card.Actions>
                     <Button
@@ -130,7 +205,7 @@ const MatchScreen = () => {
                       }}
                       color="#1976D2"
                     >
-                     Chat 
+                      Chat 
                     </Button>
                   </Card.Actions>
                 </Card>

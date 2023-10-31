@@ -64,23 +64,20 @@ CREATE TABLE ChatMessage (
     KEY personal_chat_id_idx (personal_chat_id)
 );
 
-
 drop table if exists GroupTable;
 CREATE TABLE GroupTable (
-    group_id INT PRIMARY KEY,
-    group_name VARCHAR(255) NOT NULL,
+    group_id VARCHAR(255) PRIMARY KEY,
     group_created_time TIMESTAMP NOT NULL,
-    created_by INT NOT NULL,
+    created_by VARCHAR(255) NOT NULL,
     KEY created_by_idx (created_by)
-);
+); 
 
 drop table if exists GroupMembers;
 CREATE TABLE GroupMembers (
-    member_id INT PRIMARY KEY,
-    join_time TIMESTAMP NOT NULL,
-    user_id INT NOT NULL,
-      group_id INT NOT NULL,
-      KEY user_id_idx (user_id),
+    member_id VARCHAR(255) PRIMARY KEY,
+    user_id VARCHAR(255) NOT NULL,
+    group_id VARCHAR(255) NOT NULL,
+    KEY user_id_idx (user_id),
     KEY group_id_idx (group_id)
 );
 

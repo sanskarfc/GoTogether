@@ -291,7 +291,96 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(f"An error occurred: {str(e)}".encode("utf-8"))
 
-    def do_POST(self):
+    def do_POST(self): 
+        if self.path == "/api/group/create":
+            try: 
+                content_length = int(self.headers["Content-Length"])
+                post_data = self.rfile.read(content_length)
+                post_json = post_data.decode("utf8").replace("'", '"')
+                data = json.loads(post_json)
+
+                auth_header = self.headers.get("Authorization")
+                if not auth_header:
+                    self.send_response(401)
+                    self.end_headers()
+                    self.wfile.write(b"Authorization header is missing")
+                    return
+
+                token = auth_header.split()[1]
+                options = {"verify_exp": False, "verify_aud": False}
+                decoded_token = jwt.decode(
+                    token, public_key, algorithms=["RS256"], options=options
+                )
+                user_id = decoded_token.get("sub") 
+
+                new_uuid = uuid.uuid4()
+                uuid_str = str(new_uuid)  
+
+                iso_timestamp = str(data["group_created_time"]) 
+                iso_timestamp = iso_timestamp.replace("Z", "").split(".")[0]
+                iso_timestamp = iso_timestamp.replace("T", " ").split(".")[0]
+                parsed_datetime = datetime.datetime.strptime(iso_timestamp, "%Y-%m-%d %H:%M:%S")
+                mysql_timestamp = parsed_datetime.strftime("%Y-%m-%d %H:%M:%S")
+
+                cursor = connection.cursor()
+
+                cursor.execute( # create the group with this list 
+                    "INSERT INTO GroupTable (group_id, group_created_time, created_by) VALUES (%s, %s, %s);",
+                    (
+                        str(uuid_str),
+                        str(mysql_timestamp),
+                        str(user_id),
+                    ),
+                )
+
+
+                tempUUID = uuid.uuid4()
+                tempUUID_str = str(tempUUID)  
+                cursor.execute( 
+                    "INSERT INTO GroupMembers (member_id, user_id, group_id) VALUES (%s, %s, %s);",
+                    (
+                        str(tempUUID_str),
+                        str(user_id),
+                        str(uuid_str),
+                    ),
+                )
+
+                for members in data["memberList"]: 
+                    memberUUID = uuid.uuid4()
+                    memberUUID_str = str(memberUUID)  
+                    print("memberUUID_str --> ", memberUUID_str)
+                    print("member --> ", members)
+                    print("uuid_str --> ", uuid_str)
+                    print()
+
+                    cursor.execute( 
+                        "INSERT INTO GroupMembers (member_id, user_id, group_id) VALUES (%s, %s, %s);",
+                        (
+                            str(memberUUID_str),
+                            str(members),
+                            str(uuid_str),
+                        ),
+                    )
+
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write(b"Profile updated successfully")
+
+            except jwt.ExpiredSignatureError:
+                self.send_response(401)
+                self.end_headers()
+                self.wfile.write(b"Token has expired")
+
+            except jwt.InvalidTokenError:
+                self.send_response(401)
+                self.end_headers()
+                self.wfile.write(b"Invalid token")
+
+            except Exception as e:
+                self.send_response(500)
+                self.end_headers()
+                self.wfile.write(f"An error occurred: {str(e)}".encode("utf-8"))
+
         if self.path == "/api/profile":
             try:
                 content_length = int(self.headers["Content-Length"])

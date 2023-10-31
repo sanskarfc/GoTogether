@@ -54,7 +54,67 @@ def calculate_distance(lat1, lon1, lat2, lon2):
 
 # Define the handler class for handling HTTP requests
 class RequestHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
+    def do_GET(self): 
+        if self.path == "/api/group/chat":
+            try:
+                auth_header = self.headers.get("Authorization")
+                if not auth_header:
+                    print("no authorization header!")
+                    self.send_response(401)
+                    self.end_headers()
+                    self.wfile.write(b"Authorization header is missing")
+                    return
+
+                token = auth_header.split()[1]
+                options = {"verify_exp": False, "verify_aud": False}
+                decoded_token = jwt.decode(
+                    token, public_key, algorithms=["RS256"], options=options
+                )
+                user_id = decoded_token.get("sub")
+
+                cursor = connection.cursor()
+                cursor.execute("SELECT group_id FROM GroupMembers WHERE user_id='" +user_id+  "'")
+                user_data = cursor.fetchall()
+
+                user_dict = {} 
+
+                for groupData in user_data: 
+                    membersList = []
+                    cursor.execute("SELECT user_id FROM GroupMembers WHERE group_id = '" +groupData[0]+ "';")
+                    groupMembersData = cursor.fetchall() 
+                    for memberData in groupMembersData: 
+                        membersList.append(memberData[0])
+
+                    user_dict.update({groupData[0]: membersList})
+
+                if(user_dict):
+                    json_response = json.dumps(user_dict)
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json_response.encode("utf-8"))
+                else:
+                    self.send_response(404)  # Not Found
+                    self.end_headers()
+                    self.wfile.write(b"User not found")
+
+            except jwt.ExpiredSignatureError:
+                self.send_response(401)
+                self.end_headers()
+                self.wfile.write(b"Token has expired")
+
+            except jwt.InvalidTokenError:
+                print("jwt invalid token error!!!")
+                self.send_response(401)
+                self.end_headers()
+                self.wfile.write(b"Invalid token")
+
+            except Exception as e:
+                self.send_response(500)
+                self.end_headers()
+                self.wfile.write(f"An error occurred: {str(e)}".encode("utf-8"))
+
+
         if self.path == "/api/profile":
             try:
                 auth_header = self.headers.get("Authorization")
@@ -348,11 +408,6 @@ class RequestHandler(BaseHTTPRequestHandler):
                 for members in data["memberList"]: 
                     memberUUID = uuid.uuid4()
                     memberUUID_str = str(memberUUID)  
-                    print("memberUUID_str --> ", memberUUID_str)
-                    print("member --> ", members)
-                    print("uuid_str --> ", uuid_str)
-                    print()
-
                     cursor.execute( 
                         "INSERT INTO GroupMembers (member_id, user_id, group_id) VALUES (%s, %s, %s);",
                         (

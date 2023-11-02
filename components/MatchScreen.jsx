@@ -170,7 +170,11 @@ const MatchScreen = () => {
                 <Card.Actions>
                   <Button
                     onPress={() => {
-                      // Handle navigation or actions for the group item here
+                      navigation.navigate('ChatScreen', {
+                        members: memberDetails,
+                        myId: userId,
+                        groupId: groupItem
+                      });
                     }}
                     color="#1976D2"
                   >
@@ -258,7 +262,7 @@ const MatchScreen = () => {
                     <Button
                       onPress={() => {
                         navigation.navigate('ChatScreen', {
-                          matcherId: tripData["RiderId"],
+                          matcherId: [tripData["RiderId"], userId],
                           myId: userId,
                         });
                       }}

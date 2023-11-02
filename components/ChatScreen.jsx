@@ -6,9 +6,10 @@ import { useRoute } from '@react-navigation/native';
 
 const ChatScreen = () => {
   const route = useRoute();
-  const { matcherId, myId } = route.params; 
-  console.log("matcherId --> ", matcherId);
+  const { members, myId, groupId } = route.params; 
+  console.log("members --> ", members);
   console.log("myId --> ", myId);
+  console.log("groupId --> ", groupId)
 
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -16,7 +17,12 @@ const ChatScreen = () => {
 
   const ipv4_address = Config.IPV4_ADDRESS;
   const serverUrl = `http://${ipv4_address}:8082`;
-  const clientSocket = useRef(io(serverUrl));
+  const clientSocket = useRef(io(serverUrl,
+    {
+      query: {
+        user_id: myId,
+    }
+  }));
 
   const receiveMessage = (message) => {
     setMessages((prevMessages) => [...prevMessages, { text: message, sender: 'server' }]);
@@ -33,12 +39,114 @@ const ChatScreen = () => {
     };
   }, []);
 
-  const handleSend = () => {
+  const updateGroupChat = (group_Id, message_Id) => {
+    const chatData = {
+      group_chat_id: group_Id,
+      group_id: group_Id,
+      message_id: message_Id,
+    };
+
+    async function sendGroupChat() {
+      const token = await session.getToken();
+      const ipv4_address = Config.IPV4_ADDRESS;
+      fetch(`http://${ipv4_address}:8080/api/group/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          mode: "cors",
+        },
+        body: JSON.stringify(chatData),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+        .then((data) => {
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    }
+
+    sendGroupChat();
+  };
+
+
+  const sendMessage = (message_Id, message_Text, message_Number) => {
+    const messageData = {
+      message_id: message_Id,
+      message_text: message_Text,
+      message_number: message_Number,
+      sender_id: myId
+    };
+  
+    async function sendGroupMessage() {
+      const token = await session.getToken();
+      const ipv4_address = Config.IPV4_ADDRESS;
+      fetch(`http://${ipv4_address}:8080/api/group/message`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          mode: "cors",
+        },
+        body: JSON.stringify(messageData),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+        .then((data) => {
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    }
+  
+    sendGroupMessage();
+  };
+  
+  const fetchUUID = async () => {
+    try {
+      const response = await fetch(`http://${ipv4_address}:8080/api/uuid`, {
+        method: "GET",
+        headers: {
+          "content-type": "application/json",
+          "authorization": `bearer ${token}`,
+          mode: "cors",
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+      return data.uuid;
+    } catch (error) {
+      console.error("Error fetching UUID", error);
+      return null;
+    }
+  };
+  
+  const handleSend = async () => {
     if (newMessage.trim() === '') {
       return;
     }
 
-    clientSocket.current.emit('message', newMessage);
+    const group_id = groupId;
+    const token = await session.getToken();
+    const message_id = await fetchUUID(token);
+    const message_number = 0; // what is message number?
+
+    sendMessage(message_id, newMessage, message_number)
+    updateGroupChat(group_id, message_id);
+    
+    data = [members, newMessage]
+    clientSocket.current.emit('message', data);
     console.log('sent: ', newMessage);
     setMessages((prevMessages) => [...prevMessages, { text: newMessage, sender: 'user' }]);
     setNewMessage('');

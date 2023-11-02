@@ -232,84 +232,36 @@ class RequestHandler(BaseHTTPRequestHandler):
                     ALon = user1_startLon
                     BLat = user1_endLat
                     BLon = user1_endLon
-
                     CLat = float(trip[1])
                     CLon = float(trip[3])
                     DLat = float(trip[2])
-                    DLon = float(trip[4]) 
+                    DLon = float(trip[4])  
 
                     timeAB=0 
                     timeAD=0
-                    timeDB=0
+                    timeDB=0 
 
-                    ################# A --> B ##################
                     locationData = {
-                        'locations': [[ALon, ALat], [BLon, BLat]],
-                        'destinations': [1]
+                        'locations': [[ALon, ALat], [BLon, BLat], [CLon, CLat], [DLon, DLat]],
                     }
                     headers = {
                         'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
                         'Authorization': os.getenv("OPEN_SOURCE_KEY"),
                         'Content-Type': 'application/json; charset=utf-8'
                     } 
-
                     response = requests.post(url, data=json.dumps(locationData), headers=headers) 
 
                     if response.status_code == 200:
                         jsonDataResponse = json.loads(response.text)
-                        timeAB = (jsonDataResponse.get('durations'))[0][0]
+                        timeAB = (jsonDataResponse.get('durations'))[0][1]
+                        timeAD = (jsonDataResponse.get('durations'))[0][3]
+                        timeDB = (jsonDataResponse.get('durations'))[3][1]
                     else:
                         print('POST request failed with status code:', response.status_code)  
-
-                    #################   END    ###################  
-
-
-                    ################# A --> D ##################  
-                    locationData = {
-                        'locations': [[ALon, ALat], [DLon, DLat]],
-                        'destinations': [1]
-                    }
-                    headers = {
-                        'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
-                        'Authorization': os.getenv("OPEN_SOURCE_KEY"),
-                        'Content-Type': 'application/json; charset=utf-8'
-                    } 
-
-                    response = requests.post(url, data=json.dumps(locationData), headers=headers) 
-
-                    if response.status_code == 200:
-                        jsonDataResponse = json.loads(response.text)
-                        timeAD = (jsonDataResponse.get('durations'))[0][0]
-                    else:
-                        print('POST request failed with status code:', response.status_code)  
-
-                    #####################   END   ###################   
-
-
-                    ################# D --> B ##################  
-                    locationData = {
-                        'locations': [[DLon, DLat], [BLon, BLat]],
-                        'destinations': [1]
-                    }
-                    headers = {
-                        'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
-                        'Authorization': os.getenv("OPEN_SOURCE_KEY"),
-                        'Content-Type': 'application/json; charset=utf-8'
-                    } 
-
-                    response = requests.post(url, data=json.dumps(locationData), headers=headers) 
-
-                    if response.status_code == 200:
-                        jsonDataResponse = json.loads(response.text)
-                        timeDB = (jsonDataResponse.get('durations'))[0][0]
-                    else:
-                        print('POST request failed with status code:', response.status_code)  
-                    #################    END   ######################    
 
                     print("timeAB --> ", timeAB)
                     print("timeAD --> ", timeAD)
                     print("timeDB --> ", timeDB)
-
                     ########################################################################## 
 
                     formattedDetour = "{:.1f}".format(float(timeAD + timeDB - timeAB)/60)

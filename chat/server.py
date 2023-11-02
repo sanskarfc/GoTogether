@@ -7,27 +7,40 @@ with open("../config.json", "r") as config_file:
 
 sio = socketio.Server(cors_allowed_origins="*")
 app = socketio.WSGIApp(sio)
-clients = set()
+clients = dict()
 
 
 @sio.on("connect")
 def handle_connect(sid, environ):
-    print(f"Client {sid} connected")
-    clients.add(sid)
+    required_part = environ["QUERY_STRING"]
+    start = required_part.find("=") + 1
+    end = required_part.find("&", start)
+    user_id = required_part[start:end]
+
+    print(f"Client {user_id} with sid = {sid} connected")
+
+    if user_id not in clients:
+        clients[user_id] = sid
+    clients[user_id] = sid
 
 
 @sio.on("disconnect")
 def handle_disconnect(sid):
     print(f"Client {sid} disconnected")
-    clients.remove(sid)
+    for k, v in clients.items():
+        if v == sid:
+            del clients[k]
+            break
 
 
 @sio.on("message")
 def handle_message(sid, data):
     print(f"Received message from {sid}: {data}")
-    for client in clients:
-        if client != sid:
-            sio.emit("message", data, room=client)
+    chat_members = data[0]
+    msg = data[1]
+    for member in chat_members:
+        if clients[member] != sid:
+            sio.emit("message", msg, room=clients[member])
 
 
 if __name__ == "__main__":

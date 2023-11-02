@@ -25,6 +25,7 @@ CREATE TABLE Trip (
     rideby VARCHAR(255) NOT NULL,
     poolType VARCHAR(4) NOT NULL,
     seatsNeeded INT,
+    detourValue INT,
     CHECK (poolType IN ('car', 'cab')),
     KEY rideby_idx (rideby)
 );

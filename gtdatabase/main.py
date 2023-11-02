@@ -536,14 +536,14 @@ class RequestHandler(BaseHTTPRequestHandler):
                 cursor.execute(
                     "SELECT COUNT(*) FROM Trip WHERE rideby = '" + user_id + "';"
                 )
-                user_data = cursor.fetchone()
-
+                user_data = cursor.fetchone() 
 
                 print("user_data --> ", user_data)
+                print("data --> ", data)
                 if user_data[0] == 0:
                     if(data["poolType"] == "car"):
                         cursor.execute(
-                            "INSERT INTO Trip (trip_id, start_longitude, start_latitude, end_latitude, end_longitude, number_of_seats, number_of_females, rideby, start_time, poolType, seatsNeeded) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
+                            "INSERT INTO Trip (trip_id, start_longitude, start_latitude, end_latitude, end_longitude, number_of_seats, number_of_females, rideby, start_time, poolType, seatsNeeded, detourValue) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
                             (
                                 str(uuid_str),
                                 str(start_longitude),
@@ -555,12 +555,13 @@ class RequestHandler(BaseHTTPRequestHandler):
                                 str(user_id),
                                 str(timestamp_str),
                                 str(data["poolType"]),
-                                None
+                                None,
+                                str(data["detourValue"][0])
                             ),
                         )
                     else: 
                         cursor.execute(
-                            "INSERT INTO Trip (trip_id, start_longitude, start_latitude, end_latitude, end_longitude, number_of_seats, number_of_females, rideby, start_time, poolType, seatsNeeded) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
+                            "INSERT INTO Trip (trip_id, start_longitude, start_latitude, end_latitude, end_longitude, number_of_seats, number_of_females, rideby, start_time, poolType, seatsNeeded, detourValue) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
                             (
                                 str(uuid_str),
                                 str(start_longitude),
@@ -572,7 +573,8 @@ class RequestHandler(BaseHTTPRequestHandler):
                                 str(user_id),
                                 str(timestamp_str),
                                 str(data["poolType"]),
-                                str(data["seatsNeeded"][0])
+                                str(data["seatsNeeded"][0]),
+                                str(data["detourValue"][0])
                             ),
                         )
                     print("Added Trip to Database")

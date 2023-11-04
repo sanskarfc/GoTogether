@@ -143,6 +143,8 @@ const ChatScreen = () => {
   const fetchUUID = async () => {
     try {
       const token = await session.getToken();
+      const ipv4_address = Config.IPV4_ADDRESS;
+      console.log("Token: ", token, " ip_addr: ", ipv4_address);
       const response = await fetch(`http://${ipv4_address}:8080/api/get_message_id`, {
         method: "GET",
         headers: {
@@ -151,6 +153,7 @@ const ChatScreen = () => {
           mode: "cors",
         },
       });
+      console.log("Response status: ", response.status);
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }

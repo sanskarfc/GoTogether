@@ -27,7 +27,10 @@ const ChatScreen = () => {
   const handleGetMessages = async () => {
     try {
       const token = await session.getToken();
-      const response = await fetch(`/api/group/reload_chat?group_id=${groupId}`, {
+      const ipv4_address = Config.IPV4_ADDRESS;
+      // console.log("Lesgo Token: ", token);
+      console.log("GROUP ID: ", groupId);
+      const response = await fetch(`http://${ipv4_address}:8080/api/reload_chat?group_id=${groupId}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -35,7 +38,7 @@ const ChatScreen = () => {
           mode: "cors",
         },
       });
-
+      console.log("1. Response: ", response)
       if (!response.ok) {
         throw new Error('1. Network response was not ok');
       }
@@ -148,7 +151,7 @@ const ChatScreen = () => {
     try {
       const token = await session.getToken();
       const ipv4_address = Config.IPV4_ADDRESS;
-      console.log("Token: ", token, " ip_addr: ", ipv4_address);
+      // console.log("Token: ", token, " ip_addr: ", ipv4_address);
       const response = await fetch(`http://${ipv4_address}:8080/api/get_uuid`, {
         method: "GET",
         headers: {
@@ -157,7 +160,7 @@ const ChatScreen = () => {
           mode: "cors",
         },
       });
-      console.log("Response status: ", response.status);
+      // console.log("Response status: ", response.status);
       if (!response.ok) {
         throw new Error("4. Network response was not ok");
       }
@@ -179,7 +182,7 @@ const ChatScreen = () => {
 
     const group_id = groupId;
     const message_id = await fetchUUID();
-    console.log("message_id: ", message_id);
+    // console.log("message_id: ", message_id);
     const message_number = 1; // what is message number?
 
     sendMessage(message_id, newMessage, message_number);

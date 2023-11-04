@@ -103,7 +103,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(f"An error occurred: {str(e)}".encode("utf-8"))
 
-        if self.path == "/api/group/reload_chat":
+        if self.path == "/api/reload_chat":
             ## Is this Auth header required? (see the APIs below)
             try:
                 auth_header = self.headers.get("Authorization")

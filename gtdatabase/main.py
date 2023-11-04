@@ -57,7 +57,7 @@ def calculate_distance(lat1, lon1, lat2, lon2):
 # Define the handler class for handling HTTP requests
 class RequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        if self.path == "api/get_message_id":
+        if self.path == "/api/get_uuid":
             try:
                 auth_header = self.headers.get("Authorization")
                 if not auth_header:
@@ -75,10 +75,10 @@ class RequestHandler(BaseHTTPRequestHandler):
                 # user_id = decoded_token.get("sub")
 
                 new_uuid = uuid.uuid4()
-                uuid_int = int(new_uuid)
-                print("Generated uuid: ", uuid_int)
+                uuid_str = str(new_uuid)
+                print("Generated uuid: ", uuid_str)
 
-                response_data = {"uuid": uuid_int}
+                response_data = {"uuid": uuid_str}
                 json_response = json.dumps(response_data)
 
                 self.send_response(200)
@@ -503,7 +503,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
                 print(data)
 
-                message_id = int(data.get("message_id"))
+                message_id = str(data.get("message_id"))
                 message_text = str(data.get("message_text"))
                 message_number = int(data.get("message_number"))
                 sender_id = str(data.get("sender_id"))
@@ -512,7 +512,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 cursor.execute(
                     "INSERT INTO Message (message_id, message_text, message_number, sender_id) VALUES (%s, %s, %s, %s);",
                     (
-                        int(message_id),
+                        str(message_id),
                         str(message_text),
                         int(message_number),
                         str(sender_id),
@@ -547,7 +547,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
                 group_chat_id = str(data.get("group_chat_id"))
                 group_id = str(data.get("group_id"))
-                message_id = int(data.get("message_id"))
+                message_id = str(data.get("message_id"))
 
                 iso_timestamp = str(data["msg_time"])
                 iso_timestamp = iso_timestamp.replace("Z", "").split(".")[0]
@@ -563,7 +563,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                     (
                         str(group_chat_id),
                         str(group_id),
-                        int(message_id),
+                        str(message_id),
                         str(mysql_timestamp),
                     ),
                 )

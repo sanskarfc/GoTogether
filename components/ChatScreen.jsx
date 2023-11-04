@@ -37,7 +37,7 @@ const ChatScreen = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error('1. Network response was not ok');
       }
 
       const data = await response.json();
@@ -90,7 +90,7 @@ const ChatScreen = () => {
       })
         .then((response) => {
           if (!response.ok) {
-            throw new Error("Network response was not ok");
+            throw new Error("2. Network response was not ok");
           }
           return response.json();
         })
@@ -129,8 +129,8 @@ const ChatScreen = () => {
       })
         .then((response) => {
           if (!response.ok) {
-            console.log("response: ", response);
-            throw new Error("Network response was not ok");
+            // console.log("response: ", response);
+            throw new Error("3. Network response was not ok");
           }
           return response.json();
         })
@@ -149,7 +149,7 @@ const ChatScreen = () => {
       const token = await session.getToken();
       const ipv4_address = Config.IPV4_ADDRESS;
       console.log("Token: ", token, " ip_addr: ", ipv4_address);
-      const response = await fetch(`http://${ipv4_address}:8080/api/get_message_id`, {
+      const response = await fetch(`http://${ipv4_address}:8080/api/get_uuid`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -159,9 +159,11 @@ const ChatScreen = () => {
       });
       console.log("Response status: ", response.status);
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        throw new Error("4. Network response was not ok");
       }
+
       const data = await response.json();
+      // console.log(data);
       console.log("Generated UUID for this message: ", data.uuid);
       return data.uuid;
     } catch (error) {
@@ -177,7 +179,7 @@ const ChatScreen = () => {
 
     const group_id = groupId;
     const message_id = await fetchUUID();
-    // const message_id = 6;
+    console.log("message_id: ", message_id);
     const message_number = 1; // what is message number?
 
     sendMessage(message_id, newMessage, message_number);

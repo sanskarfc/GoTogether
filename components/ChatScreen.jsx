@@ -82,8 +82,8 @@ const ChatScreen = () => {
       fetch(`http://${ipv4_address}:8080/api/group/chat`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          "content-type": "application/json",
+          "authorization": `bearer ${token}`,
           mode: "cors",
         },
         body: JSON.stringify(chatData),
@@ -119,8 +119,8 @@ const ChatScreen = () => {
       fetch(`http://${ipv4_address}:8080/api/group/message`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          "content-type": "application/json",
+          "authorization": `bearer ${token}`,
           mode: "cors",
         },
         body: JSON.stringify(messageData),
@@ -156,6 +156,7 @@ const ChatScreen = () => {
         throw new Error("Network response was not ok");
       }
       const data = await response.json();
+      console.log("Generated UUID for this message: ", data.uuid);
       return data.uuid;
     } catch (error) {
       console.error("Error fetching UUID", error);
@@ -169,14 +170,13 @@ const ChatScreen = () => {
     }
 
     const group_id = groupId;
-    const token = await session.getToken();
-    const message_id = await fetchUUID(token);
+    const message_id = await fetchUUID();
     const message_number = 0; // what is message number?
 
     sendMessage(message_id, newMessage, message_number)
     updateGroupChat(group_id, message_id);
     
-    data = [members, newMessage]
+    const data = [members, newMessage]
     clientSocket.current.emit('message', data);
     console.log('sent: ', newMessage);
     setMessages((prevMessages) => [...prevMessages, { text: newMessage, sender: 'user' }]);

@@ -72,7 +72,8 @@ const ChatScreen = () => {
     const chatData = {
       group_chat_id: group_Id,
       group_id: group_Id,
-      message_id: message_Id,
+      message_id: message_Id,  
+      msg_time: new Date().toISOString(),
     };
 
     async function sendGroupChat() {
@@ -111,6 +112,8 @@ const ChatScreen = () => {
       message_number: message_Number,
       sender_id: myId
     };
+
+    console.log("Message Data: ", messageData);
   
     async function sendGroupMessage() {
       const token = await session.getToken();
@@ -126,6 +129,7 @@ const ChatScreen = () => {
       })
         .then((response) => {
           if (!response.ok) {
+            console.log("response: ", response);
             throw new Error("Network response was not ok");
           }
           return response.json();
@@ -148,7 +152,7 @@ const ChatScreen = () => {
       const response = await fetch(`http://${ipv4_address}:8080/api/get_message_id`, {
         method: "GET",
         headers: {
-          "Content-Type": "application/json",
+          "Content-type": "application/json",
           "Authorization": `bearer ${token}`,
           mode: "cors",
         },
@@ -173,12 +177,13 @@ const ChatScreen = () => {
 
     const group_id = groupId;
     const message_id = await fetchUUID();
-    const message_number = 0; // what is message number?
+    // const message_id = 6;
+    const message_number = 1; // what is message number?
 
-    sendMessage(message_id, newMessage, message_number)
+    sendMessage(message_id, newMessage, message_number);
     updateGroupChat(group_id, message_id);
     
-    const data = [members, newMessage]
+    const data = [members, newMessage];
     clientSocket.current.emit('message', data);
     console.log('sent: ', newMessage);
     setMessages((prevMessages) => [...prevMessages, { text: newMessage, sender: 'user' }]);

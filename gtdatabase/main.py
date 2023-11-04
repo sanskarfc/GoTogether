@@ -83,7 +83,6 @@ class RequestHandler(BaseHTTPRequestHandler):
 
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")
-                # self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
                 self.wfile.write(json_response.encode("utf-8"))
 
@@ -99,6 +98,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.wfile.write(b"Invalid token")
 
             except Exception as e:
+                print("Error: ", str(e))
                 self.send_response(500)
                 self.end_headers()
                 self.wfile.write(f"An error occurred: {str(e)}".encode("utf-8"))
@@ -503,18 +503,21 @@ class RequestHandler(BaseHTTPRequestHandler):
 
                 print(data)
 
-                message_id = data.get("message_id")
-                message_text = data.get("message_text")
-                message_number = data.get("message_number")
-                sender_id = data.get("sender_id")
+                message_id = int(data.get("message_id"))
+                message_text = str(data.get("message_text"))
+                message_number = int(data.get("message_number"))
+                sender_id = str(data.get("sender_id"))
 
                 cursor = connection.cursor()
                 cursor.execute(
                     "INSERT INTO Message (message_id, message_text, message_number, sender_id) VALUES (%s, %s, %s, %s);",
-                    (message_id, message_text, message_number, sender_id),
+                    (
+                        int(message_id),
+                        str(message_text),
+                        int(message_number),
+                        str(sender_id),
+                    ),
                 )
-                connection.commit()
-
                 self.send_response(200)
                 self.end_headers()
                 self.wfile.write(b"Message added successfully")
@@ -530,6 +533,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.wfile.write(b"Invalid token")
 
             except Exception as e:
+                print("SQL execution error:", str(e))
                 self.send_response(500)
                 self.end_headers()
                 self.wfile.write(f"An error occurred: {str(e)}".encode("utf-8"))
@@ -541,11 +545,11 @@ class RequestHandler(BaseHTTPRequestHandler):
                 post_json = post_data.decode("utf8").replace("'", '"')
                 data = json.loads(post_json)
 
-                group_chat_id = data.get("group_chat_id")
-                group_id = data.get("group_id")
-                message_id = data.get("message_id")
+                group_chat_id = str(data.get("group_chat_id"))
+                group_id = str(data.get("group_id"))
+                message_id = int(data.get("message_id"))
 
-                iso_timestamp = str(data["time"])
+                iso_timestamp = str(data["msg_time"])
                 iso_timestamp = iso_timestamp.replace("Z", "").split(".")[0]
                 iso_timestamp = iso_timestamp.replace("T", " ").split(".")[0]
                 parsed_datetime = datetime.datetime.strptime(
@@ -555,10 +559,15 @@ class RequestHandler(BaseHTTPRequestHandler):
 
                 cursor = connection.cursor()
                 cursor.execute(
-                    "INSERT INTO GrpChat (grp_chat_id, group_id, message_id, time) VALUES (%s, %s, %s, %s);",
-                    (group_chat_id, group_id, message_id, str(mysql_timestamp)),
+                    "INSERT INTO GrpChat (grp_chat_id, group_id, message_id, msg_time) VALUES (%s, %s, %s, %s);",
+                    (
+                        str(group_chat_id),
+                        str(group_id),
+                        int(message_id),
+                        str(mysql_timestamp),
+                    ),
                 )
-                connection.commit()
+                # connection.commit()
 
                 self.send_response(200)
                 self.end_headers()
@@ -575,6 +584,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.wfile.write(b"Invalid token")
 
             except Exception as e:
+                print("SQL execution error:", str(e))
                 self.send_response(500)
                 self.end_headers()
                 self.wfile.write(f"An error occurred: {str(e)}".encode("utf-8"))

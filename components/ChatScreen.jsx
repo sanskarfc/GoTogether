@@ -3,8 +3,10 @@ import { View, Text, TextInput, Button, FlatList, StyleSheet, KeyboardAvoidingVi
 import { io } from 'socket.io-client';
 import Config from "./../config.json";
 import { useRoute } from '@react-navigation/native';
+import { useAuth, useSession } from "@clerk/clerk-expo";
 
 const ChatScreen = () => {
+  const { session } = useSession();
   const route = useRoute();
   const { members, myId, groupId } = route.params; 
   console.log("members --> ", members);
@@ -22,7 +24,35 @@ const ChatScreen = () => {
       query: {
         user_id: myId,
     }
-  }));
+    }));
+  
+  const handleGetMessages = async () => {
+    try {
+      const token = await session.getToken();
+      const response = await fetch(`/api/group/reload_chat?group_id=${groupId}`, {
+        method: "GET",
+        headers: {
+          "content-type": "application/json",
+          "authorization": `bearer ${token}`,
+          mode: "cors",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      
+      setMessages(data);
+    } catch (error) {
+      console.error('Error loading previous chat messages', error);
+    }
+  };
+
+  useEffect(() => {
+    handleGetMessages();
+  }, [groupId]);
 
   const receiveMessage = (message) => {
     setMessages((prevMessages) => [...prevMessages, { text: message, sender: 'server' }]);
@@ -113,6 +143,7 @@ const ChatScreen = () => {
   
   const fetchUUID = async () => {
     try {
+      const token = await session.getToken();
       const response = await fetch(`http://${ipv4_address}:8080/api/uuid`, {
         method: "GET",
         headers: {

@@ -9,9 +9,7 @@ const ChatScreen = () => {
   const { session } = useSession();
   const route = useRoute();
   const { members, myId, groupId } = route.params; 
-  console.log("members --> ", members);
-  console.log("myId --> ", myId);
-  console.log("groupId --> ", groupId)
+  console.log( "myId --> ", myId, " | groupId --> ", groupId, " | members --> ", members);
 
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -32,8 +30,8 @@ const ChatScreen = () => {
       const response = await fetch(`/api/group/reload_chat?group_id=${groupId}`, {
         method: "GET",
         headers: {
-          "content-type": "application/json",
-          "authorization": `bearer ${token}`,
+          "Content-Type": "application/json",
+          "Authorization": `bearer ${token}`,
           mode: "cors",
         },
       });
@@ -51,6 +49,7 @@ const ChatScreen = () => {
   };
 
   useEffect(() => {
+    console.log("reload previous chat");
     handleGetMessages();
   }, [groupId]);
 
@@ -82,8 +81,8 @@ const ChatScreen = () => {
       fetch(`http://${ipv4_address}:8080/api/group/chat`, {
         method: "POST",
         headers: {
-          "content-type": "application/json",
-          "authorization": `bearer ${token}`,
+          "Content-Type": "application/json",
+          "Authorization": `bearer ${token}`,
           mode: "cors",
         },
         body: JSON.stringify(chatData),
@@ -119,8 +118,8 @@ const ChatScreen = () => {
       fetch(`http://${ipv4_address}:8080/api/group/message`, {
         method: "POST",
         headers: {
-          "content-type": "application/json",
-          "authorization": `bearer ${token}`,
+          "Content-Type": "application/json",
+          "Authorization": `bearer ${token}`,
           mode: "cors",
         },
         body: JSON.stringify(messageData),
@@ -144,11 +143,11 @@ const ChatScreen = () => {
   const fetchUUID = async () => {
     try {
       const token = await session.getToken();
-      const response = await fetch(`http://${ipv4_address}:8080/api/uuid`, {
+      const response = await fetch(`http://${ipv4_address}:8080/api/get_message_id`, {
         method: "GET",
         headers: {
-          "content-type": "application/json",
-          "authorization": `bearer ${token}`,
+          "Content-Type": "application/json",
+          "Authorization": `bearer ${token}`,
           mode: "cors",
         },
       });

@@ -57,7 +57,7 @@ def calculate_distance(lat1, lon1, lat2, lon2):
 # Define the handler class for handling HTTP requests
 class RequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        if self.path == "api/uuid":
+        if self.path == "api/get_message_id":
             try:
                 auth_header = self.headers.get("Authorization")
                 if not auth_header:
@@ -83,6 +83,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")
+                self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
                 self.wfile.write(json_response.encode("utf-8"))
 
@@ -445,9 +446,9 @@ class RequestHandler(BaseHTTPRequestHandler):
                         )
                     #################    END   ######################
 
-                    print("timeAB --> ", timeAB)
-                    print("timeAD --> ", timeAD)
-                    print("timeDB --> ", timeDB)
+                    # print("timeAB --> ", timeAB)
+                    # print("timeAD --> ", timeAD)
+                    # print("timeDB --> ", timeDB)
 
                     ##########################################################################
 
@@ -499,6 +500,8 @@ class RequestHandler(BaseHTTPRequestHandler):
                 post_data = self.rfile.read(content_length)
                 post_json = post_data.decode("utf8").replace("'", '"')
                 data = json.loads(post_json)
+
+                print(data)
 
                 message_id = data.get("message_id")
                 message_text = data.get("message_text")

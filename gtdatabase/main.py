@@ -72,6 +72,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 decoded_token = jwt.decode(
                     token, public_key, algorithms=["RS256"], options=options
                 )
+                print(decoded_token)
                 # user_id = decoded_token.get("sub")
 
                 new_uuid = uuid.uuid4()
@@ -103,10 +104,13 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(f"An error occurred: {str(e)}".encode("utf-8"))
 
-        if self.path == "/api/reload_chat":
+        if self.path == "/api/reload":
+            print("Chat Reloading!!!")
             ## Is this Auth header required? (see the APIs below)
             try:
                 auth_header = self.headers.get("Authorization")
+                gid = str(self.headers.get("gid"))
+                # print("GID:", group_id)
                 if not auth_header:
                     print("no authorization header!")
                     self.send_response(401)
@@ -121,29 +125,28 @@ class RequestHandler(BaseHTTPRequestHandler):
                 )
                 # user_id = decoded_token.get("sub")
 
-                query_params = parse_qs(urlparse(self.path).query)
-                group_id = query_params.get("group_id")
+                # query_params = parse_qs(urlparse(self.path).query)
+                # group_id = query_params.get("gid")
 
-                if not group_id:
+                if not gid:
                     self.send_response(400)
                     self.end_headers()
                     self.wfile.write(b"Missing group_id parameter")
                     return
 
-                group_id = int(group_id[0])
-
                 cursor = connection.cursor()
                 cursor.execute(
-                    f"SELECT message_id, time FROM GrpChat WHERE group_id = {group_id} ORDER BY time"
+                    f"SELECT message_id, msg_time FROM GrpChat WHERE group_id = '{gid}' ORDER BY msg_time"
                 )
                 grp_chat_data = cursor.fetchall()
 
+                # print("Group Chat Data:", grp_chat_data)
                 message_list = []
 
                 for entry in grp_chat_data:
                     message_id = entry[0]
                     cursor.execute(
-                        f"SELECT message_text, sender_id FROM Message WHERE message_id = {message_id}"
+                        f"SELECT message_text, sender_id FROM Message WHERE message_id = '{message_id}'"
                     )
                     message_data = cursor.fetchone()
                     if message_data:
@@ -174,6 +177,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.wfile.write(b"Invalid token")
 
             except Exception as e:
+                print("Error:", str(e))
                 self.send_response(500)
                 self.end_headers()
                 self.wfile.write(f"An error occurred: {str(e)}".encode("utf-8"))

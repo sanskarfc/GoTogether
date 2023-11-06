@@ -28,13 +28,15 @@ const ChatScreen = () => {
     try {
       const token = await session.getToken();
       const ipv4_address = Config.IPV4_ADDRESS;
-      // console.log("Lesgo Token: ", token);
-      console.log("GROUP ID: ", groupId);
-      const response = await fetch(`http://${ipv4_address}:8080/api/reload_chat?group_id=${groupId}`, {
+      // const gid = encodeURIComponent(groupId);
+      const gid = groupId;
+      console.log("GID:", gid);
+      const response = await fetch(`http://${ipv4_address}:8080/api/reload`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `bearer ${token}`,
+          "Authorization": `Bearer ${token}`,
+          "gid": gid,
           mode: "cors",
         },
       });
@@ -45,7 +47,13 @@ const ChatScreen = () => {
 
       const data = await response.json();
       
-      setMessages(data);
+      console.log(data);
+      data.forEach(subArray => {
+        const text = subArray[0];
+        const sender = subArray[1];
+        setMessages(prevMessages => [...prevMessages, { text, sender }]);
+      });
+
     } catch (error) {
       console.error('Error loading previous chat messages', error);
     }
@@ -152,6 +160,7 @@ const ChatScreen = () => {
       const token = await session.getToken();
       const ipv4_address = Config.IPV4_ADDRESS;
       // console.log("Token: ", token, " ip_addr: ", ipv4_address);
+      // console.log("API URL 2: ", `http://${ipv4_address}:8080/api/get_uuid`);
       const response = await fetch(`http://${ipv4_address}:8080/api/get_uuid`, {
         method: "GET",
         headers: {
@@ -205,7 +214,7 @@ const ChatScreen = () => {
   renderItem={({ item }) => (
     <View style={[
       styles.message,
-      item.sender === 'server' ? styles.leftMessage : styles.rightMessage
+      item.sender === myId ? styles.rightMessage : styles.leftMessage
     ]}>
       <Text style={[
         styles.messageText,

@@ -101,9 +101,22 @@ const FilterOptions = () => {
 
         <View style={styles.filterContainer}>
           <Text style={styles.filterLabel}>Select a Date and Time</Text>
-          <TouchableOpacity onPress={() => setShowDateTimePicker(true)}>
-            <Text>{date.toISOString()}</Text>
-          </TouchableOpacity>
+          {Platform.OS === 'ios' ? (
+            <DateTimePicker
+              value={date}
+              mode="datetime"
+              display="default"
+              onChange={(event, selectedDate) => {
+                if (selectedDate) {
+                  setDate(selectedDate);
+                }
+              }}
+            />
+          ) : (
+            <TouchableOpacity onPress={() => setShowDateTimePicker(true)}>
+              <Text>{date.toISOString()}</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <Modal

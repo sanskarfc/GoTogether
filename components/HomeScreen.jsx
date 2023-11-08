@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import moment from 'moment';
 import { Button, View, SafeAreaView, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import ChatScreen from './ChatScreen';
 import { useAuth, useSession, useUser } from "@clerk/clerk-expo";
 import { useNavigation } from '@react-navigation/native'; 
 import axios from 'axios'; // Import axios
@@ -47,6 +48,9 @@ const HomeScreen = () => {
     navigation.navigate('UserProfilePage');  
   }; 
 
+  const handleChatButtonPress = () => {
+    navigation.navigate('ChatScreen');
+  };
   function getTimeDiff() {
     const userCreatedAt = moment(user.createdAt.toString(), 'ddd MMM DD YYYY HH:mm:ss GMTZ').utc();
     const now = moment();

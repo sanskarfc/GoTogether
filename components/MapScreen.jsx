@@ -26,7 +26,7 @@ const MapScreen = () => {
 
   async function handleLetsGo() {
     const token = await session.getToken();  
-    var userData = {}; 
+    var userData = {};  
 
     if(ladiesValue === undefined) {
       userData = {

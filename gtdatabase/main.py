@@ -54,7 +54,67 @@ def calculate_distance(lat1, lon1, lat2, lon2):
 
 # Define the handler class for handling HTTP requests
 class RequestHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
+    def do_GET(self): 
+        if self.path == "/api/group/chat":
+            try:
+                auth_header = self.headers.get("Authorization")
+                if not auth_header:
+                    print("no authorization header!")
+                    self.send_response(401)
+                    self.end_headers()
+                    self.wfile.write(b"Authorization header is missing")
+                    return
+
+                token = auth_header.split()[1]
+                options = {"verify_exp": False, "verify_aud": False}
+                decoded_token = jwt.decode(
+                    token, public_key, algorithms=["RS256"], options=options
+                )
+                user_id = decoded_token.get("sub")
+
+                cursor = connection.cursor()
+                cursor.execute("SELECT group_id FROM GroupMembers WHERE user_id='" +user_id+  "'")
+                user_data = cursor.fetchall()
+
+                user_dict = {} 
+
+                for groupData in user_data: 
+                    membersList = []
+                    cursor.execute("SELECT user_id FROM GroupMembers WHERE group_id = '" +groupData[0]+ "';")
+                    groupMembersData = cursor.fetchall() 
+                    for memberData in groupMembersData: 
+                        membersList.append(memberData[0])
+
+                    user_dict.update({groupData[0]: membersList})
+
+                if(user_dict):
+                    json_response = json.dumps(user_dict)
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json_response.encode("utf-8"))
+                else:
+                    self.send_response(404)  # Not Found
+                    self.end_headers()
+                    self.wfile.write(b"User not found")
+
+            except jwt.ExpiredSignatureError:
+                self.send_response(401)
+                self.end_headers()
+                self.wfile.write(b"Token has expired")
+
+            except jwt.InvalidTokenError:
+                print("jwt invalid token error!!!")
+                self.send_response(401)
+                self.end_headers()
+                self.wfile.write(b"Invalid token")
+
+            except Exception as e:
+                self.send_response(500)
+                self.end_headers()
+                self.wfile.write(f"An error occurred: {str(e)}".encode("utf-8"))
+
+
         if self.path == "/api/profile":
             try:
                 auth_header = self.headers.get("Authorization")
@@ -139,7 +199,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 user_name = str((cursor.fetchone())[0])
                 print("user name --> ", user_name) 
 
-                cursor.execute("SELECT * FROM Trip;")
+                cursor.execute("SELECT * FROM Trip where rideby!='"+user_id+"';")
                 user_data = cursor.fetchall()
 
                 cursor.execute("SELECT * from Trip where rideby='" + user_id + "'")
@@ -172,84 +232,36 @@ class RequestHandler(BaseHTTPRequestHandler):
                     ALon = user1_startLon
                     BLat = user1_endLat
                     BLon = user1_endLon
-
                     CLat = float(trip[1])
                     CLon = float(trip[3])
                     DLat = float(trip[2])
-                    DLon = float(trip[4]) 
+                    DLon = float(trip[4])  
 
                     timeAB=0 
                     timeAD=0
-                    timeDB=0
+                    timeDB=0 
 
-                    ################# A --> B ##################
                     locationData = {
-                        'locations': [[ALon, ALat], [BLon, BLat]],
-                        'destinations': [1]
+                        'locations': [[ALon, ALat], [BLon, BLat], [CLon, CLat], [DLon, DLat]],
                     }
                     headers = {
                         'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
                         'Authorization': os.getenv("OPEN_SOURCE_KEY"),
                         'Content-Type': 'application/json; charset=utf-8'
                     } 
-
                     response = requests.post(url, data=json.dumps(locationData), headers=headers) 
 
                     if response.status_code == 200:
                         jsonDataResponse = json.loads(response.text)
-                        timeAB = (jsonDataResponse.get('durations'))[0][0]
+                        timeAB = (jsonDataResponse.get('durations'))[0][1]
+                        timeAD = (jsonDataResponse.get('durations'))[0][3]
+                        timeDB = (jsonDataResponse.get('durations'))[3][1]
                     else:
                         print('POST request failed with status code:', response.status_code)  
-
-                    #################   END    ###################  
-
-
-                    ################# A --> D ##################  
-                    locationData = {
-                        'locations': [[ALon, ALat], [DLon, DLat]],
-                        'destinations': [1]
-                    }
-                    headers = {
-                        'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
-                        'Authorization': os.getenv("OPEN_SOURCE_KEY"),
-                        'Content-Type': 'application/json; charset=utf-8'
-                    } 
-
-                    response = requests.post(url, data=json.dumps(locationData), headers=headers) 
-
-                    if response.status_code == 200:
-                        jsonDataResponse = json.loads(response.text)
-                        timeAD = (jsonDataResponse.get('durations'))[0][0]
-                    else:
-                        print('POST request failed with status code:', response.status_code)  
-
-                    #####################   END   ###################   
-
-
-                    ################# D --> B ##################  
-                    locationData = {
-                        'locations': [[DLon, DLat], [BLon, BLat]],
-                        'destinations': [1]
-                    }
-                    headers = {
-                        'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
-                        'Authorization': os.getenv("OPEN_SOURCE_KEY"),
-                        'Content-Type': 'application/json; charset=utf-8'
-                    } 
-
-                    response = requests.post(url, data=json.dumps(locationData), headers=headers) 
-
-                    if response.status_code == 200:
-                        jsonDataResponse = json.loads(response.text)
-                        timeDB = (jsonDataResponse.get('durations'))[0][0]
-                    else:
-                        print('POST request failed with status code:', response.status_code)  
-                    #################    END   ######################    
 
                     print("timeAB --> ", timeAB)
                     print("timeAD --> ", timeAD)
                     print("timeDB --> ", timeDB)
-
                     ########################################################################## 
 
                     formattedDetour = "{:.1f}".format(float(timeAD + timeDB - timeAB)/60)
@@ -263,6 +275,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                             "End Longitude": float(trip[4]),
                             "Ride Start Time": str(trip[5]),
                             "Rider": str(rider_name),
+                            "RiderId": str(trip[8]),
                             "Your Detour": formattedDetour,
                         }
 
@@ -290,7 +303,91 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(f"An error occurred: {str(e)}".encode("utf-8"))
 
-    def do_POST(self):
+    def do_POST(self): 
+        if self.path == "/api/group/create":
+            try: 
+                content_length = int(self.headers["Content-Length"])
+                post_data = self.rfile.read(content_length)
+                post_json = post_data.decode("utf8").replace("'", '"')
+                data = json.loads(post_json)
+
+                auth_header = self.headers.get("Authorization")
+                if not auth_header:
+                    self.send_response(401)
+                    self.end_headers()
+                    self.wfile.write(b"Authorization header is missing")
+                    return
+
+                token = auth_header.split()[1]
+                options = {"verify_exp": False, "verify_aud": False}
+                decoded_token = jwt.decode(
+                    token, public_key, algorithms=["RS256"], options=options
+                )
+                user_id = decoded_token.get("sub") 
+
+                new_uuid = uuid.uuid4()
+                uuid_str = str(new_uuid)  
+
+                iso_timestamp = str(data["group_created_time"]) 
+                iso_timestamp = iso_timestamp.replace("Z", "").split(".")[0]
+                iso_timestamp = iso_timestamp.replace("T", " ").split(".")[0]
+                parsed_datetime = datetime.datetime.strptime(iso_timestamp, "%Y-%m-%d %H:%M:%S")
+                mysql_timestamp = parsed_datetime.strftime("%Y-%m-%d %H:%M:%S")
+
+                cursor = connection.cursor()
+
+                cursor.execute( # create the group with this list 
+                    "INSERT INTO GroupTable (group_id, group_created_time, created_by) VALUES (%s, %s, %s);",
+                    (
+                        str(uuid_str),
+                        str(mysql_timestamp),
+                        str(user_id),
+                    ),
+                )
+
+
+                tempUUID = uuid.uuid4()
+                tempUUID_str = str(tempUUID)  
+                cursor.execute( 
+                    "INSERT INTO GroupMembers (member_id, user_id, group_id) VALUES (%s, %s, %s);",
+                    (
+                        str(tempUUID_str),
+                        str(user_id),
+                        str(uuid_str),
+                    ),
+                )
+
+                for members in data["memberList"]: 
+                    memberUUID = uuid.uuid4()
+                    memberUUID_str = str(memberUUID)  
+                    cursor.execute( 
+                        "INSERT INTO GroupMembers (member_id, user_id, group_id) VALUES (%s, %s, %s);",
+                        (
+                            str(memberUUID_str),
+                            str(members),
+                            str(uuid_str),
+                        ),
+                    )
+
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write(b"Profile updated successfully")
+
+            except jwt.ExpiredSignatureError:
+                self.send_response(401)
+                self.end_headers()
+                self.wfile.write(b"Token has expired")
+
+            except jwt.InvalidTokenError:
+                self.send_response(401)
+                self.end_headers()
+                self.wfile.write(b"Invalid token")
+
+            except Exception as e:
+                self.send_response(500)
+                self.end_headers()
+                self.wfile.write(f"An error occurred: {str(e)}".encode("utf-8"))
+
         if self.path == "/api/profile":
             try:
                 content_length = int(self.headers["Content-Length"])
@@ -439,14 +536,14 @@ class RequestHandler(BaseHTTPRequestHandler):
                 cursor.execute(
                     "SELECT COUNT(*) FROM Trip WHERE rideby = '" + user_id + "';"
                 )
-                user_data = cursor.fetchone()
-
+                user_data = cursor.fetchone() 
 
                 print("user_data --> ", user_data)
+                print("data --> ", data)
                 if user_data[0] == 0:
                     if(data["poolType"] == "car"):
                         cursor.execute(
-                            "INSERT INTO Trip (trip_id, start_longitude, start_latitude, end_latitude, end_longitude, number_of_seats, number_of_females, rideby, start_time, poolType, seatsNeeded) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
+                            "INSERT INTO Trip (trip_id, start_longitude, start_latitude, end_latitude, end_longitude, number_of_seats, number_of_females, rideby, start_time, poolType, seatsNeeded, detourValue) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
                             (
                                 str(uuid_str),
                                 str(start_longitude),
@@ -458,12 +555,13 @@ class RequestHandler(BaseHTTPRequestHandler):
                                 str(user_id),
                                 str(timestamp_str),
                                 str(data["poolType"]),
-                                None
+                                None,
+                                str(data["detourValue"][0])
                             ),
                         )
                     else: 
                         cursor.execute(
-                            "INSERT INTO Trip (trip_id, start_longitude, start_latitude, end_latitude, end_longitude, number_of_seats, number_of_females, rideby, start_time, poolType, seatsNeeded) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
+                            "INSERT INTO Trip (trip_id, start_longitude, start_latitude, end_latitude, end_longitude, number_of_seats, number_of_females, rideby, start_time, poolType, seatsNeeded, detourValue) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);",
                             (
                                 str(uuid_str),
                                 str(start_longitude),
@@ -475,7 +573,8 @@ class RequestHandler(BaseHTTPRequestHandler):
                                 str(user_id),
                                 str(timestamp_str),
                                 str(data["poolType"]),
-                                str(data["seatsNeeded"][0])
+                                str(data["seatsNeeded"][0]),
+                                str(data["detourValue"][0])
                             ),
                         )
                     print("Added Trip to Database")

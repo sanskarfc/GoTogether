@@ -38,9 +38,11 @@ def handle_message(sid, data):
     print(f"Received message from {sid}: {data}")
     chat_members = data[0]
     msg = data[1]
+    my_id = data[2]
     for member in chat_members:
-        if clients[member] != sid:
-            sio.emit("message", msg, room=clients[member])
+        if member in clients:
+            if clients[member] != sid:
+                sio.emit("message", msg, room=clients[member])
 
 
 if __name__ == "__main__":

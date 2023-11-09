@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, Button, FlatList, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { io } from 'socket.io-client';
@@ -6,6 +7,8 @@ import { useRoute } from '@react-navigation/native';
 import { useAuth, useSession } from "@clerk/clerk-expo";
 
 const ChatScreen = () => {
+  const messageRef = useRef();
+  const messagesRef = useRef([]);
   const { session } = useSession();
   const route = useRoute();
   const { members, myId, groupId } = route.params; 
@@ -15,14 +18,18 @@ const ChatScreen = () => {
   const [newMessage, setNewMessage] = useState('');
   const flatListRef = useRef(null);
 
+  const clientSocket = useRef();
   const ipv4_address = Config.IPV4_ADDRESS;
   const serverUrl = `http://${ipv4_address}:8082`;
-  const clientSocket = useRef(io(serverUrl,
-    {
-      query: {
-        user_id: myId,
-    }
-    }));
+
+  useEffect(() => {
+    clientSocket.current = io(serverUrl,
+      {
+        query: {
+          user_id: myId,
+      }
+      });
+  }, [groupId])
   
   const handleGetMessages = async () => {
     try {
@@ -46,6 +53,7 @@ const ChatScreen = () => {
       }
 
       const data = await response.json();
+      messagesRef.current.value = data;
       
       console.log(data);
       data.forEach(subArray => {
@@ -65,7 +73,11 @@ const ChatScreen = () => {
   }, [groupId]);
 
   const receiveMessage = (message) => {
+
+    // messagesRef.current = [...messagesRef.current, { text: message, sender: 'server' }];
     setMessages((prevMessages) => [...prevMessages, { text: message, sender: 'server' }]);
+    console.log("MESSAGES:");
+    console.log(messages);
     flatListRef.current.scrollToEnd({ animated: true });
   };
 
@@ -185,6 +197,9 @@ const ChatScreen = () => {
   };
   
   const handleSend = async () => {
+    console.log("message --> ", messageRef.current.value);
+    console.log("messages list --> ", messagesRef);
+    let newMessage = messageRef.current.value;
     if (newMessage.trim() === '') {
       return;
     }
@@ -197,44 +212,48 @@ const ChatScreen = () => {
     sendMessage(message_id, newMessage, message_number);
     updateGroupChat(group_id, message_id);
     
-    const data = [members, newMessage];
+    const data = [members, newMessage, myId];
     clientSocket.current.emit('message', data);
     console.log('sent: ', newMessage);
-    setMessages((prevMessages) => [...prevMessages, { text: newMessage, sender: 'user' }]);
-    setNewMessage('');
+    // messagesRef.current = [...messagesRef.current, { text: messageRef.current.value, sender: 'user' }];
+    messageRef.current.value = '';
+    setMessages((prevMessages) => [...prevMessages, { text: newMessage, sender: myId }]);
+    // setNewMessage('');
     flatListRef.current.scrollToEnd({ animated: true });
-  };
+  }; 
 
   return (
     <View style={styles.container}>
-<FlatList
-  data={messages}
-  ref={flatListRef}
-  keyExtractor={(item, index) => index.toString()}
-  renderItem={({ item }) => (
-    <View style={[
-      styles.message,
-      item.sender === myId ? styles.rightMessage : styles.leftMessage
-    ]}>
-      <Text style={[
-        styles.messageText,
-        item.sender === 'server' ? styles.receivedMessageText : null
-      ]}>
-        {item.text}
-      </Text>
-    </View>
-  )}
-/>
+      <FlatList
+        data={messages}
+        ref={flatListRef}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item }) => (
+          <View style={[
+            styles.message,
+            item.sender === myId ? styles.rightMessage : styles.leftMessage
+          ]}>
+            <Text style={[
+              styles.messageText,
+              item.sender !== myId ? styles.receivedMessageText : null
+            ]}>
+              {item.text}
+            </Text>
+          </View>
+        )}
+      />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.inputContainer}
       >
         <TextInput
+          ref={messageRef}
           style={styles.input}
+          onChangeText={(e) => {
+            messageRef.current.value = e;
+          }}
           placeholder="Type a message..."
-          value={newMessage}
-          onChangeText={(text) => setNewMessage(text)}
         />
         <Button title="Send" onPress={handleSend} />
       </KeyboardAvoidingView>

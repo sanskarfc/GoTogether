@@ -123,7 +123,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 decoded_token = jwt.decode(
                     token, public_key, algorithms=["RS256"], options=options
                 )
-                # user_id = decoded_token.get("sub")
+                user_id = decoded_token.get("sub")
 
                 # query_params = parse_qs(urlparse(self.path).query)
                 # group_id = query_params.get("gid")
@@ -155,6 +155,13 @@ class RequestHandler(BaseHTTPRequestHandler):
 
                 print("Previous Chat History: ", message_list)
 
+                # if not message_list:
+                #     message_list.append(["hi", user_id])
+                # json_response = json.dumps(message_list)
+                # self.send_response(200)
+                # self.send_header("Content-Type", "application/json")
+                # self.end_headers()
+                # self.wfile.write(json_response.encode("utf-8"))
                 if message_list:
                     json_response = json.dumps(message_list)
                     self.send_response(200)

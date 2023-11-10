@@ -7,25 +7,8 @@ import { useNavigation } from '@react-navigation/native';
 import axios from 'axios'; // Import axios
 import { useRoute } from '@react-navigation/native';
 import Config from "./../config.json";
+import ShadowBox from './shadowbox';
 
-const SignOut = () => {
-  const { isLoaded, signOut } = useAuth();
-
-  if (!isLoaded) {
-    return null;
-  }
-
-  return (
-    <SafeAreaView style={styles.signOutContainer}>
-      <Button
-        title="Sign Out"
-        onPress={() => {
-          signOut();
-        }}
-      />
-    </SafeAreaView>
-  );
-}; 
 
 const HomeScreen = () => {  
   const navigation = useNavigation(); 
@@ -95,18 +78,32 @@ const HomeScreen = () => {
     registerUser();
   }, []);  
 
+  const { isLoade, signOut } = useAuth();
+
+
+
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.userProfileButton} onPress={handleUserProfilePress}>
-        <Text style={styles.userProfileIcon} >Profile</Text>
-      </TouchableOpacity>   
-      <TouchableOpacity style={styles.button} onPress={handleCarButtonPress}>
-        <Text style={styles.buttonText}>I have a Car</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={handleHitchButtonPress}>
-        <Text style={styles.buttonText}>I do not have a Car</Text>
-      </TouchableOpacity>
-      <SignOut />
+      <View style={styles.innercontainer}>
+        <ShadowBox onPress={handleCarButtonPress} heading="I have a Car" path={require('./img/car.png')} />
+        <ShadowBox onPress={handleHitchButtonPress} heading="I want a Ride" path={require('./img/man.png')} />
+      </View> 
+      <View style={{ flexDirection: 'row', marginRight: 10 }}>
+      <View style={{ marginRight: 5 }}>
+        <Button
+          title="Profile"
+          onPress={handleUserProfilePress}
+          color="black" // Set text color
+        />
+      </View>
+      <View style={{ marginRight: 5 }}>
+        <Button
+          title="SignOut"
+          onPress={signOut}
+          color="grey"
+        />
+      </View>
+    </View>
     </View>
   );
 };
@@ -116,6 +113,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  innercontainer:{
+    flexDirection: 'row',
+    height: '30%',
+    justifyContent:'center',
+    alignItems:'center',
+    top: -30,
   },
   button: {
     backgroundColor: 'blue',

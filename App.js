@@ -1,5 +1,6 @@
 import React from "react";
-import { View, SafeAreaView, StyleSheet } from "react-native";
+import { useNavigation } from '@react-navigation/native'; 
+import { View, SafeAreaView, StyleSheet, Button } from "react-native";
 import { ClerkProvider, SignedIn, SignedOut } from "@clerk/clerk-expo";
 import SignInWithOAuth from "./components/SignInWithOAuth"; 
 import * as SecureStore from "expo-secure-store";
@@ -36,6 +37,8 @@ const tokenCache = {
     }
   },
 }; 
+
+
 
 export default function App() {
   return (

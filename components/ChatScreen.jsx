@@ -27,6 +27,7 @@ const ChatScreen = () => {
       {
         query: {
           user_id: myId,
+          group_id: groupId,
       }
       });
   }, [groupId])
@@ -87,6 +88,7 @@ const ChatScreen = () => {
 
     return () => {
       clientSocket.current.off('message', receiveMessage);
+      clientSocket.current.emit('removeFromChat', [myId, groupId]);
       clientSocket.current.disconnect();
     };
   }, []);
@@ -212,7 +214,8 @@ const ChatScreen = () => {
     sendMessage(message_id, newMessage, message_number);
     updateGroupChat(group_id, message_id);
     
-    const data = [members, newMessage, myId];
+    // const data = [members, newMessage, myId];
+    const data = [groupId, newMessage, myId];
     clientSocket.current.emit('message', data);
     console.log('sent: ', newMessage);
     // messagesRef.current = [...messagesRef.current, { text: messageRef.current.value, sender: 'user' }];

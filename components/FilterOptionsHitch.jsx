@@ -19,7 +19,7 @@ const FilterOptionsHitch = () => {
   const ladyOptions = ['Yes', "Doesn't Matter"];
   const cabOptions = ['Yes', 'No'];
 
-  const navigation = usenavigation();
+  const navigation = useNavigation();
 
   const handleSubmit = () => {
     navigation.navigate('MapScreen', {
